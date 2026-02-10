@@ -1,0 +1,247 @@
+{% extends "base.html" %}
+
+{% block title %}Teaching Load - {{ teacher.user.name }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-6 py-8">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-8">
+        <div class="flex items-center space-x-4">
+            <a href="{{ url_for('admin_teachers') }}" 
+               class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-arrow-left text-xl"></i>
+            </a>
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Teaching Load</h1>
+                <p class="text-gray-600">{{ teacher.user.name }}'s batch assignments and workload</p>
+            </div>
+        </div>
+        <div class="flex space-x-3">
+            <a href="{{ url_for('admin_teacher_assign_batch', teacher_id=teacher.id) }}"
+               class="bg-brand text-white px-4 py-2 rounded-md hover:bg-brand-700 transition-colors duration-150">
+                <i class="fas fa-plus mr-2"></i>
+                Assign to Batch
+            </a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Teaching Summary -->
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-lg shadow p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Teaching Summary</h3>
+                
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                        <div>
+                            <i class="fas fa-layer-group text-blue-600 mb-1"></i>
+                            <p class="text-sm text-gray-600">Total Batches</p>
+                            <p class="text-2xl font-bold text-blue-600">{{ total_batches }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                        <div>
+                            <i class="fas fa-users text-green-600 mb-1"></i>
+                            <p class="text-sm text-gray-600">Total Students</p>
+                            <p class="text-2xl font-bold text-green-600">{{ total_students }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between p-3 bg-amber-50 rounded-lg">
+                        <div>
+                            <i class="fas fa-chart-line text-amber-600 mb-1"></i>
+                            <p class="text-sm text-gray-600">Avg. Batch Size</p>
+                            <p class="text-2xl font-bold text-amber-600">
+                                {% if total_batches > 0 %}
+                                    {{ (total_students / total_batches) | round(1) }}
+                                {% else %}
+                                    0
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Workload Status -->
+                    <div class="pt-4 border-t border-gray-200">
+                        <h4 class="text-sm font-medium text-gray-900 mb-2">Workload Status</h4>
+                        {% if total_batches == 0 %}
+                            <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">No Assignments</span>
+                        {% elif total_batches <= 2 %}
+                            <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Light Load</span>
+                        {% elif total_batches <= 4 %}
+                            <span class="text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded-full">Moderate Load</span>
+                        {% else %}
+                            <span class="text-xs bg-red-100 text-red-800 px-2 py-1 rounded-full">Heavy Load</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Teacher Info -->
+                <div class="mt-6 pt-6 border-t border-gray-200">
+                    <h4 class="text-sm font-medium text-gray-900 mb-3">Teacher Details</h4>
+                    <div class="space-y-2 text-sm">
+                        <div>
+                            <span class="text-gray-600">Email:</span>
+                            <span class="font-medium">{{ teacher.user.email }}</span>
+                        </div>
+                        {% if teacher.user.phone %}
+                        <div>
+                            <span class="text-gray-600">Phone:</span>
+                            <span class="font-medium">{{ teacher.user.phone }}</span>
+                        </div>
+                        {% endif %}
+                        {% if teacher.subjects %}
+                        <div>
+                            <span class="text-gray-600">Specialization:</span>
+                            <span class="font-medium">{{ teacher.subjects[:100] }}{% if teacher.subjects|length > 100 %}...{% endif %}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Assigned Batches -->
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-lg shadow">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">
+                        Assigned Batches ({{ assigned_batches|length }})
+                    </h3>
+                </div>
+                <div class="p-6">
+                    {% if assigned_batches %}
+                        <div class="space-y-4">
+                            {% for batch in assigned_batches %}
+                            <div class="border border-gray-200 rounded-lg p-4">
+                                <div class="flex items-center justify-between mb-3">
+                                    <div>
+                                        <h4 class="text-lg font-medium text-gray-900">{{ batch.name }}</h4>
+                                        <p class="text-sm text-gray-600">
+                                            {{ batch.current_enrollment }}/{{ batch.capacity }} students enrolled
+                                        </p>
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <a href="{{ url_for('admin_batch_manage_students', batch_id=batch.id) }}"
+                                           class="text-brand hover:text-brand-700">
+                                            <i class="fas fa-users"></i>
+                                        </a>
+                                        <a href="{{ url_for('admin_batch_detail', batch_id=batch.id) }}"
+                                           class="text-gray-600 hover:text-gray-700">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <button onclick="confirmRemoveBatch('{{ batch.name }}', {{ batch.id }})"
+                                                class="text-red-600 hover:text-red-700">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Batch Progress -->
+                                <div class="mb-3">
+                                    <div class="flex justify-between text-sm mb-1">
+                                        <span class="text-gray-600">Enrollment</span>
+                                        <span class="font-medium">{{ (batch.current_enrollment / batch.capacity * 100) | round(1) }}%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2">
+                                        <div class="bg-brand h-2 rounded-full" style="width: {{ (batch.current_enrollment / batch.capacity * 100) | round(1) }}%"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Batch Details -->
+                                <div class="grid grid-cols-2 gap-4 text-sm">
+                                    {% if batch.start_date %}
+                                    <div>
+                                        <span class="text-gray-600">Start Date:</span>
+                                        <span class="font-medium">{{ batch.start_date.strftime('%m/%d/%Y') }}</span>
+                                    </div>
+                                    {% endif %}
+                                    {% if batch.end_date %}
+                                    <div>
+                                        <span class="text-gray-600">End Date:</span>
+                                        <span class="font-medium">{{ batch.end_date.strftime('%m/%d/%Y') }}</span>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-8">
+                            <i class="fas fa-layer-group text-gray-300 text-4xl mb-4"></i>
+                            <p class="text-gray-500">No batches assigned to this teacher</p>
+                            <a href="{{ url_for('admin_teacher_assign_batch', teacher_id=teacher.id) }}"
+                               class="inline-flex items-center mt-4 px-4 py-2 text-sm font-medium text-white bg-brand rounded-md hover:bg-brand-700">
+                                <i class="fas fa-plus mr-2"></i>
+                                Assign First Batch
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Available Batches -->
+            {% if available_batches %}
+            <div class="bg-white rounded-lg shadow mt-6">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">
+                        Available Batches ({{ available_batches|length }})
+                    </h3>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {% for batch in available_batches %}
+                        <div class="border border-gray-200 rounded-lg p-3 hover:bg-gray-50">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h4 class="font-medium text-gray-900">{{ batch.name }}</h4>
+                                    <p class="text-sm text-gray-600">{{ batch.current_enrollment }}/{{ batch.capacity }} students</p>
+                                </div>
+                                <button onclick="assignToBatch({{ batch.id }}, '{{ batch.name }}')"
+                                        class="text-brand hover:text-brand-700">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmRemoveBatch(batchName, batchId) {
+    showConfirmModal(
+        'Remove Batch Assignment',
+        `Are you sure you want to remove "${batchName}" from this teacher's assignments?`,
+        function() {
+            // Create form to remove teacher from batch
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{{ url_for("admin_batch_assign_teacher_submit", batch_id=0) }}'.replace('0', batchId);
+            
+            // Add hidden field for empty teacher_id (remove assignment)
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'teacher_id';
+            input.value = '';
+            form.appendChild(input);
+            
+            document.body.appendChild(form);
+            form.submit();
+        },
+        'Remove',
+        'fa-unlink',
+        'text-red-500'
+    );
+}
+
+function assignToBatch(batchId, batchName) {
+    window.location.href = `{{ url_for('admin_teacher_assign_batch', teacher_id=teacher.id) }}`;
+}
+</script>
+{% endblock %}

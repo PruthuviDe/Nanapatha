@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Profile - NanaPatha{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <!-- Profile Header -->
+    <div class="bg-gradient-to-r from-brand to-brand-700 rounded-xl p-8 text-white relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-32 translate-x-32"></div>
+        <div class="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-24 -translate-x-24"></div>
+        
+        <div class="relative flex items-center space-x-6">
+            <div class="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                <span class="text-3xl font-bold">{{ admin.avatar }}</span>
+            </div>
+            <div>
+                <h1 class="text-3xl font-bold mb-2">{{ admin.name }}</h1>
+                <p class="text-lg opacity-90 mb-1">{{ admin.role }}</p>
+                <p class="opacity-75">{{ admin.email }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Content -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Personal Information -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Basic Info Card -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-semibold text-gray-900">Personal Information</h2>
+                    <button class="px-4 py-2 text-sm font-medium text-brand border border-brand rounded-lg hover:bg-brand hover:text-white transition-colors">
+                        Edit Profile
+                    </button>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500 mb-2">Full Name</label>
+                        <p class="text-gray-900 font-medium">{{ admin.name }}</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500 mb-2">Email Address</label>
+                        <p class="text-gray-900">{{ admin.email }}</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500 mb-2">Phone Number</label>
+                        <p class="text-gray-900">{{ admin.phone }}</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500 mb-2">Department</label>
+                        <p class="text-gray-900">{{ admin.department }}</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500 mb-2">Role</label>
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-brand/10 text-brand">
+                            {{ admin.role }}
+                        </span>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500 mb-2">Member Since</label>
+                        <p class="text-gray-900">{{ admin.joined }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account Settings -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-6">Account Settings</h2>
+                
+                <div class="space-y-6">
+                    <!-- Change Password -->
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div>
+                            <h3 class="font-medium text-gray-900">Password</h3>
+                            <p class="text-sm text-gray-500">Last changed 30 days ago</p>
+                        </div>
+                        <button class="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100">
+                            Change Password
+                        </button>
+                    </div>
+
+                    <!-- Two-Factor Authentication -->
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div>
+                            <h3 class="font-medium text-gray-900">Two-Factor Authentication</h3>
+                            <p class="text-sm text-gray-500">Add an extra layer of security</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand"></div>
+                        </label>
+                    </div>
+
+                    <!-- Email Notifications -->
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div>
+                            <h3 class="font-medium text-gray-900">Email Notifications</h3>
+                            <p class="text-sm text-gray-500">Receive important updates</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" checked class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand"></div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="space-y-6">
+            <!-- Quick Stats -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Quick Stats</h3>
+                
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-500">Login Sessions</span>
+                        <span class="font-semibold text-gray-900">127</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-500">Last Login</span>
+                        <span class="font-semibold text-gray-900">Today</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-500">Actions This Month</span>
+                        <span class="font-semibold text-gray-900">1,432</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-500">System Uptime</span>
+                        <span class="font-semibold text-green-600">99.8%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Permissions -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Permissions</h3>
+                
+                <div class="space-y-3">
+                    {% for permission in admin.permissions %}
+                    <div class="flex items-center space-x-3">
+                        <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                        <span class="text-sm text-gray-700">{{ permission }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Activity Log -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
+                
+                <div class="space-y-4">
+                    <div class="flex items-start space-x-3">
+                        <div class="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
+                        <div>
+                            <p class="text-sm text-gray-900">Created new batch "Mathematics A1"</p>
+                            <p class="text-xs text-gray-500">2 hours ago</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                        <div class="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
+                        <div>
+                            <p class="text-sm text-gray-900">Approved 5 student registrations</p>
+                            <p class="text-xs text-gray-500">5 hours ago</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                        <div class="w-2 h-2 bg-amber-500 rounded-full mt-2"></div>
+                        <div>
+                            <p class="text-sm text-gray-900">Updated classroom schedule</p>
+                            <p class="text-xs text-gray-500">1 day ago</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                        <div class="w-2 h-2 bg-purple-500 rounded-full mt-2"></div>
+                        <div>
+                            <p class="text-sm text-gray-900">Generated monthly report</p>
+                            <p class="text-xs text-gray-500">2 days ago</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

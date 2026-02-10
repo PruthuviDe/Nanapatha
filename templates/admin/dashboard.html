@@ -1,0 +1,371 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - NanaPatha{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <!-- Page Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Dashboard</h1>
+            <p class="text-gray-500 mt-1 text-sm sm:text-base">Welcome to NanaPatha Institute</p>
+        </div>
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:space-x-4">
+            <!-- Change Period Dropdown -->
+            <div class="relative">
+                <button class="flex items-center justify-center sm:justify-start space-x-2 bg-white border border-gray-200 rounded-lg px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-gray-700 hover:bg-gray-50 w-full sm:w-auto">
+                    <i class="fas fa-calendar text-blue-500"></i>
+                    <span class="hidden sm:inline">Change period</span>
+                    <span class="text-gray-500 text-xs hidden lg:inline">August 28th - October 28th, 2021</span>
+                    <i class="fas fa-chevron-down text-gray-400"></i>
+                </button>
+            </div>
+            <!-- New Admission Button -->
+            <div class="relative">
+                <button onclick="toggleAdmissionMenu()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 sm:px-6 py-2 rounded-lg font-medium flex items-center justify-center space-x-2 transition-colors w-full sm:w-auto">
+                    <i class="fas fa-plus"></i>
+                    <span class="text-sm sm:text-base">New Admission</span>
+                    <i class="fas fa-chevron-down ml-2"></i>
+                </button>
+                
+                <!-- Dropdown Menu -->
+                <div id="admissionMenu" class="hidden absolute right-0 sm:right-0 left-0 sm:left-auto mt-2 w-full sm:w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
+                    <div class="py-2">
+                        <a href="{{ url_for('admin_registrations') }}?filter=existing" 
+                           class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 border-b border-gray-100">
+                            <i class="fas fa-id-card text-blue-600 mr-3 flex-shrink-0"></i>
+                            <div class="min-w-0">
+                                <div class="font-medium truncate">Process Existing Students</div>
+                                <div class="text-xs text-gray-500 truncate">Review students who need LMS accounts</div>
+                            </div>
+                        </a>
+                        <a href="{{ url_for('admin_registrations') }}?filter=new" 
+                           class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
+                            <i class="fas fa-user-plus text-green-600 mr-3 flex-shrink-0"></i>
+                            <div class="min-w-0">
+                                <div class="font-medium truncate">Process New Students</div>
+                                <div class="text-xs text-gray-500 truncate">Review new admission applications</div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Stats Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Total Students Card -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 relative overflow-hidden">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-blue-100 rounded-2xl flex items-center justify-center">
+                    <i class="fas fa-users text-blue-600 text-xl"></i>
+                </div>
+                <span class="text-sm font-medium text-green-600">+0.5%</span>
+            </div>
+            <div>
+                <h3 class="text-3xl font-bold text-gray-900 mb-1">{{ total_students or '9,825' }}</h3>
+                <p class="text-gray-500 text-sm">total Students</p>
+                <p class="text-xs text-gray-400 mt-2">than last month</p>
+            </div>
+            <div class="absolute top-0 right-0 w-20 h-20 bg-blue-50 rounded-full -translate-y-10 translate-x-10"></div>
+        </div>
+
+        <!-- Total Teachers Card -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 relative overflow-hidden">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-blue-100 rounded-2xl flex items-center justify-center">
+                    <i class="fas fa-graduation-cap text-blue-600 text-xl"></i>
+                </div>
+                <span class="text-sm font-medium text-red-600">-2%</span>
+            </div>
+            <div>
+                <h3 class="text-3xl font-bold text-gray-900 mb-1">{{ total_teachers or '653' }}</h3>
+                <p class="text-gray-500 text-sm">total Teachers</p>
+                <p class="text-xs text-gray-400 mt-2">than last month</p>
+            </div>
+            <div class="absolute top-0 right-0 w-20 h-20 bg-blue-50 rounded-full -translate-y-10 translate-x-10"></div>
+        </div>
+
+        <!-- Pending Registrations Card with Progress -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 relative overflow-hidden">
+            <div class="flex items-center justify-between mb-4">
+                <div class="relative w-16 h-16">
+                    <svg class="w-16 h-16 transform -rotate-90" viewBox="0 0 36 36">
+                        <path class="text-gray-200" fill="none" stroke="currentColor" stroke-width="3" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        <path class="text-orange-500" fill="none" stroke="currentColor" stroke-width="3" stroke-dasharray="85, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                    </svg>
+                    <span class="absolute inset-0 flex items-center justify-center text-sm font-bold text-gray-900">85%</span>
+                </div>
+            </div>
+            <div>
+                <h3 class="text-3xl font-bold text-gray-900 mb-1">{{ pending_registrations or '24' }}</h3>
+                <p class="text-gray-500 text-sm">Pending Registrations</p>
+            </div>
+        </div>
+
+        <!-- Active Batches Card with Progress -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 relative overflow-hidden">
+            <div class="flex items-center justify-between mb-4">
+                <div class="relative w-16 h-16">
+                    <svg class="w-16 h-16 transform -rotate-90" viewBox="0 0 36 36">
+                        <path class="text-gray-200" fill="none" stroke="currentColor" stroke-width="3" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        <path class="text-green-600" fill="none" stroke="currentColor" stroke-width="3" stroke-dasharray="78, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                    </svg>
+                    <span class="absolute inset-0 flex items-center justify-center text-sm font-bold text-gray-900">78%</span>
+                </div>
+            </div>
+            <div>
+                <h3 class="text-3xl font-bold text-gray-900 mb-1">{{ pending_registrations or '12' }}</h3>
+                <p class="text-gray-500 text-sm">Active Batches</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Grid -->
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8">
+        <!-- Student Enrollment Analytics -->
+        <div class="xl:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 gap-2">
+                <h2 class="text-lg sm:text-xl font-semibold text-gray-900">Student Enrollment</h2>
+                <div class="flex items-center space-x-2 sm:space-x-4">
+                    <button class="text-xs sm:text-sm text-gray-500 hover:text-gray-700 px-2 py-1 rounded">Monthly ▼</button>
+                    <button class="text-gray-400 hover:text-gray-600 p-1">⋯</button>
+                </div>
+            </div>
+            
+            <!-- Enrollment Summary -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
+                <div class="flex items-center space-x-3 sm:space-x-4 p-3 sm:p-0 bg-gray-50 sm:bg-transparent rounded-lg sm:rounded-none">
+                    <div class="relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0">
+                        <svg class="w-16 h-16 sm:w-20 sm:h-20 transform -rotate-90" viewBox="0 0 36 36">
+                            <path class="text-gray-200" fill="none" stroke="currentColor" stroke-width="3" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path class="text-blue-600" fill="none" stroke="currentColor" stroke-width="3" stroke-dasharray="85, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-xl sm:text-2xl font-bold text-gray-900">{{ total_students or '1,845' }}</h3>
+                        <p class="text-gray-500 text-xs sm:text-sm">Total Enrolled</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3 sm:space-x-4 p-3 sm:p-0 bg-gray-50 sm:bg-transparent rounded-lg sm:rounded-none">
+                    <div class="relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0">
+                        <svg class="w-16 h-16 sm:w-20 sm:h-20 transform -rotate-90" viewBox="0 0 36 36">
+                            <path class="text-gray-200" fill="none" stroke="currentColor" stroke-width="3" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path class="text-green-500" fill="none" stroke="currentColor" stroke-width="3" stroke-dasharray="68, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-xl sm:text-2xl font-bold text-gray-900">{{ pending_registrations or '124' }}</h3>
+                        <p class="text-gray-500 text-xs sm:text-sm">New This Month</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Weekly Enrollment Chart Placeholder -->
+            <div class="h-48 sm:h-64 bg-gray-50 rounded-xl flex items-center justify-center">
+                <div class="text-center px-4">
+                    <i class="fas fa-chart-line text-2xl sm:text-4xl text-gray-300 mb-2 sm:mb-4"></i>
+                    <p class="text-gray-500 text-sm sm:text-base">Weekly Enrollment Trends</p>
+                    <p class="text-xs sm:text-sm text-gray-400">Mon Tue Wed Thu Fri Sat Sun</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- School Performance & Calendar -->
+        <div class="space-y-6 lg:space-y-8">
+            <!-- School Performance -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6">
+                <h2 class="text-lg sm:text-xl font-semibold text-gray-900 mb-3 sm:mb-4">School Performance</h2>
+                <p class="text-xs sm:text-sm text-gray-500 mb-4 sm:mb-6">You have 245 contacts</p>
+                
+                <!-- Performance Progress -->
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-600">Student Attendance</span>
+                        <span class="text-sm font-medium">92%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-blue-600 h-2 rounded-full" style="width: 92%"></div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-600">Teacher Performance</span>
+                        <span class="text-sm font-medium">85%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-green-500 h-2 rounded-full" style="width: 85%"></div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-600">Course Completion</span>
+                        <span class="text-sm font-medium">78%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-yellow-500 h-2 rounded-full" style="width: 78%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calendar -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6">
+                <div class="flex items-center justify-between mb-4 sm:mb-6">
+                    <h2 class="text-base sm:text-lg font-semibold text-gray-900">December 2023</h2>
+                    <div class="flex space-x-1 sm:space-x-2">
+                        <button class="p-1 sm:p-2 hover:bg-gray-100 rounded">
+                            <i class="fas fa-chevron-left text-gray-400 text-xs sm:text-sm"></i>
+                        </button>
+                        <button class="p-1 sm:p-2 hover:bg-gray-100 rounded">
+                            <i class="fas fa-chevron-right text-gray-400 text-xs sm:text-sm"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Calendar Grid -->
+                <div class="grid grid-cols-7 gap-1 text-center text-xs sm:text-sm">
+                    <div class="p-1 sm:p-2 text-gray-500 font-medium">Su</div>
+                    <div class="p-1 sm:p-2 text-gray-500 font-medium">Mo</div>
+                    <div class="p-1 sm:p-2 text-gray-500 font-medium">Tu</div>
+                    <div class="p-1 sm:p-2 text-gray-500 font-medium">We</div>
+                    <div class="p-1 sm:p-2 text-gray-500 font-medium">Th</div>
+                    <div class="p-1 sm:p-2 text-gray-500 font-medium">Fr</div>
+                    <div class="p-1 sm:p-2 text-gray-500 font-medium">Sa</div>
+                    
+                    <!-- Calendar dates -->
+                    <div class="p-1 sm:p-2 text-gray-400"></div>
+                    <div class="p-1 sm:p-2 text-gray-400"></div>
+                    <div class="p-1 sm:p-2 text-gray-400"></div>
+                    <div class="p-1 sm:p-2 text-gray-400"></div>
+                    <div class="p-1 sm:p-2 text-gray-400"></div>
+                    <div class="p-1 sm:p-2 hover:bg-blue-50 rounded cursor-pointer">1</div>
+                    <div class="p-1 sm:p-2 hover:bg-blue-50 rounded cursor-pointer">2</div>
+                    <div class="p-1 sm:p-2 hover:bg-blue-50 rounded cursor-pointer">3</div>
+                    <div class="p-1 sm:p-2 bg-blue-600 text-white rounded cursor-pointer">4</div>
+                    <div class="p-1 sm:p-2 hover:bg-blue-50 rounded cursor-pointer">5</div>
+                    <div class="p-1 sm:p-2 hover:bg-blue-50 rounded cursor-pointer">6</div>
+                    <div class="p-1 sm:p-2 hover:bg-blue-50 rounded cursor-pointer">7</div>
+                    <div class="p-1 sm:p-2 hover:bg-blue-50 rounded cursor-pointer">8</div>
+                    <div class="p-1 sm:p-2 hover:bg-blue-50 rounded cursor-pointer">9</div>
+                    <div class="p-1 sm:p-2 hover:bg-blue-50 rounded cursor-pointer">10</div>
+                    <div class="p-1 sm:p-2 hover:bg-blue-50 rounded cursor-pointer">11</div>
+                    <div class="p-1 sm:p-2 hover:bg-blue-50 rounded cursor-pointer">12</div>
+                    <div class="p-1 sm:p-2 hover:bg-blue-50 rounded cursor-pointer">13</div>
+                    <div class="p-1 sm:p-2 hover:bg-blue-50 rounded cursor-pointer">14</div>
+                    <div class="p-1 sm:p-2 hover:bg-blue-50 rounded cursor-pointer">15</div>
+                    <div class="p-1 sm:p-2 hover:bg-blue-50 rounded cursor-pointer">16</div>
+                    <div class="p-1 sm:p-2 hover:bg-blue-50 rounded cursor-pointer">17</div>
+                    <div class="p-1 sm:p-2 hover:bg-blue-50 rounded cursor-pointer">18</div>
+                    <div class="p-1 sm:p-2 hover:bg-blue-50 rounded cursor-pointer">19</div>
+                    <div class="p-1 sm:p-2 hover:bg-blue-50 rounded cursor-pointer">20</div>
+                    <div class="p-1 sm:p-2 hover:bg-blue-50 rounded cursor-pointer">21</div>
+                    <div class="p-1 sm:p-2 hover:bg-blue-50 rounded cursor-pointer">22</div>
+                    <div class="p-1 sm:p-2 hover:bg-blue-50 rounded cursor-pointer">23</div>
+                    <div class="p-1 sm:p-2 hover:bg-blue-50 rounded cursor-pointer">24</div>
+                    <div class="p-1 sm:p-2 hover:bg-blue-50 rounded cursor-pointer">25</div>
+                    <div class="p-1 sm:p-2 hover:bg-blue-50 rounded cursor-pointer">26</div>
+                    <div class="p-1 sm:p-2 hover:bg-blue-50 rounded cursor-pointer">27</div>
+                    <div class="p-1 sm:p-2 hover:bg-blue-50 rounded cursor-pointer">28</div>
+                    <div class="p-1 sm:p-2 hover:bg-blue-50 rounded cursor-pointer">29</div>
+                    <div class="p-1 sm:p-2 hover:bg-blue-50 rounded cursor-pointer">30</div>
+                    <div class="p-1 sm:p-2 hover:bg-blue-50 rounded cursor-pointer">31</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Section -->
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8">
+        <!-- Active Courses -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6">
+            <div class="flex items-center justify-between mb-4 sm:mb-6">
+                <h2 class="text-lg sm:text-xl font-semibold text-gray-900">Active Courses</h2>
+                <button class="text-gray-400 hover:text-gray-600 p-1">⋯</button>
+            </div>
+            
+            <div class="space-y-3 sm:space-y-4">
+                <div class="flex items-center space-x-3 sm:space-x-4">
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-calculator text-blue-600 text-sm sm:text-base"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-medium text-gray-900 text-sm sm:text-base truncate">Mathematics A1</h3>
+                        <p class="text-xs sm:text-sm text-gray-500 truncate">Advanced calculus and algebra</p>
+                    </div>
+                    <span class="text-sm sm:text-lg font-semibold text-gray-900 whitespace-nowrap">32 students</span>
+                </div>
+                
+                <div class="flex items-center space-x-3 sm:space-x-4">
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-atom text-green-600 text-sm sm:text-base"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-medium text-gray-900 text-sm sm:text-base truncate">Physics B2</h3>
+                        <p class="text-xs sm:text-sm text-gray-500 truncate">Quantum mechanics basics</p>
+                    </div>
+                    <span class="text-sm sm:text-lg font-semibold text-gray-900 whitespace-nowrap">28 students</span>
+                </div>
+                
+                <div class="flex items-center space-x-3 sm:space-x-4">
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-flask text-purple-600 text-sm sm:text-base"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-medium text-gray-900 text-sm sm:text-base truncate">Chemistry C1</h3>
+                        <p class="text-xs sm:text-sm text-gray-500 truncate">Organic chemistry fundamentals</p>
+                    </div>
+                    <span class="text-sm sm:text-lg font-semibold text-gray-900 whitespace-nowrap">25 students</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Students -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6">
+            <div class="flex items-center justify-between mb-4 sm:mb-6">
+                <h2 class="text-lg sm:text-xl font-semibold text-gray-900">Recent Students</h2>
+                <button class="text-gray-400 hover:text-gray-600 p-1">⋯</button>
+            </div>
+            
+            <div class="space-y-3 sm:space-y-4">
+                {% for registration in recent_registrations[:5] %}
+                <div class="flex items-center space-x-3 sm:space-x-4">
+                    <div class="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                        <span class="text-xs sm:text-sm font-medium text-blue-600">{{ registration.name[:1] }}</span>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-medium text-gray-900 text-sm sm:text-base truncate">{{ registration.name }}</h3>
+                        <p class="text-xs sm:text-sm text-gray-500 truncate">{{ registration.grade or 'Not specified' }}</p>
+                    </div>
+                    <span class="px-2 py-1 text-xs font-medium rounded-full whitespace-nowrap {% if registration.status == 'pending' %}bg-yellow-100 text-yellow-800{% else %}bg-green-100 text-green-800{% endif %}">
+                        {{ registration.status.title() }}
+                    </span>
+                </div>
+                {% endfor %}
+                
+                {% if not recent_registrations %}
+                <div class="text-center py-8">
+                    <i class="fas fa-users text-4xl text-gray-300 mb-4"></i>
+                    <p class="text-gray-500">No recent registrations</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleAdmissionMenu() {
+    const menu = document.getElementById('admissionMenu');
+    menu.classList.toggle('hidden');
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(event) {
+    const menu = document.getElementById('admissionMenu');
+    const button = event.target.closest('button');
+    
+    if (!button || !button.onclick || button.onclick.toString().indexOf('toggleAdmissionMenu') === -1) {
+        menu.classList.add('hidden');
+    }
+});
+</script>
+{% endblock %}

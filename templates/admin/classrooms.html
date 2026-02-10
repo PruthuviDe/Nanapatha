@@ -1,0 +1,426 @@
+{% extends "base.html" %}
+
+{% block title %}Classrooms Management - NanaPatha{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Page Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-semibold text-gray-900">Classrooms Management</h1>
+            <p class="text-sm text-gray-500 mt-1">Manage physical learning spaces and facilities</p>
+        </div>
+        
+        <div class="flex items-center space-x-3">
+            <a href="{{ url_for('admin_classroom_create') }}" 
+               class="bg-brand text-white px-4 py-2 rounded-md hover:bg-brand-700 transition-colors duration-150">
+                <i class="fas fa-plus mr-2"></i>
+                Add Classroom
+            </a>
+            <button class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 transition-colors duration-150">
+                <i class="fas fa-calendar-alt mr-2"></i>
+                Room Schedule
+            </button>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="w-12 h-12 bg-brand/10 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-door-open text-brand text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Total Rooms</p>
+                    <p class="text-2xl font-semibold text-gray-900">{{ classrooms|length }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-check-circle text-emerald-600 text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Available</p>
+                    <p class="text-2xl font-semibold text-gray-900">
+                        {{ classrooms | selectattr('status', 'equalto', 'available') | list | length }}
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-users text-amber-600 text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">In Use</p>
+                    <p class="text-2xl font-semibold text-gray-900">
+                        {{ classrooms | selectattr('status', 'equalto', 'occupied') | list | length }}
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-chair text-gray-600 text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Total Capacity</p>
+                    <p class="text-2xl font-semibold text-gray-900">
+                        {{ classrooms | sum(attribute='capacity') }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <form method="GET" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                <!-- Search -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Search</label>
+                    <input type="text" name="search" value="{{ search_query }}" 
+                           placeholder="Room name or location..." 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand focus:border-transparent">
+                </div>
+                
+                <!-- Status Filter -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                    <select name="status" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand focus:border-transparent">
+                        <option value="">All Status</option>
+                        <option value="available">Available</option>
+                        <option value="occupied">Occupied</option>
+                        <option value="maintenance">Maintenance</option>
+                        <option value="unavailable">Unavailable</option>
+                    </select>
+                </div>
+                
+                <!-- Capacity Filter -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Capacity</label>
+                    <select name="capacity" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand focus:border-transparent">
+                        <option value="">All Sizes</option>
+                        <option value="small">Small (1-15)</option>
+                        <option value="medium">Medium (16-30)</option>
+                        <option value="large">Large (31-50)</option>
+                        <option value="xlarge">Extra Large (50+)</option>
+                    </select>
+                </div>
+                
+                <!-- Equipment Filter -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Equipment</label>
+                    <select name="equipment" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand focus:border-transparent">
+                        <option value="">All Equipment</option>
+                        <option value="projector">Projector</option>
+                        <option value="whiteboard">Whiteboard</option>
+                        <option value="computer">Computer</option>
+                        <option value="ac">Air Conditioning</option>
+                    </select>
+                </div>
+                
+                <!-- Actions -->
+                <div class="flex items-end space-x-2">
+                    <button type="submit" 
+                            class="bg-brand text-white px-4 py-2 rounded-md hover:bg-brand-700 transition-colors duration-150">
+                        <i class="fas fa-search mr-2"></i>
+                        Filter
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Classrooms Grid -->
+    {% if classrooms %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for classroom in classrooms %}
+        <div class="bg-white rounded-lg shadow hover:shadow-lg transition-shadow duration-200">
+            <!-- Classroom Header -->
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex items-start justify-between mb-3">
+                    <div class="flex-1">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-1">
+                            {{ classroom.name }}
+                        </h3>
+                        {% if classroom.location %}
+                        <p class="text-sm text-gray-600">
+                            <i class="fas fa-map-marker-alt mr-1"></i>
+                            {{ classroom.location }}
+                        </p>
+                        {% endif %}
+                    </div>
+                    
+                    <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-emerald-100 text-emerald-800">
+                        Available
+                    </span>
+                </div>
+                
+                {% if classroom.notes %}
+                <p class="text-sm text-gray-500 line-clamp-2">{{ classroom.notes }}</p>
+                {% endif %}
+            </div>
+            
+            <!-- Classroom Details -->
+            <div class="p-6 space-y-4">
+                <!-- Capacity & Current Usage -->
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-users text-gray-400"></i>
+                        <span class="text-sm text-gray-600">Capacity</span>
+                    </div>
+                    <span class="text-sm font-medium text-gray-900">
+                        {% if classroom.current_batches %}
+                            {{ classroom.current_batches|length }} / {{ classroom.capacity }}
+                        {% else %}
+                            0 / {{ classroom.capacity }}
+                        {% endif %}
+                    </span>
+                </div>
+                
+                <!-- Equipment -->
+                {% if classroom.equipment %}
+                <div class="space-y-2">
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-tools text-gray-400"></i>
+                        <span class="text-sm text-gray-600">Equipment</span>
+                    </div>
+                    <div class="flex flex-wrap gap-1">
+                        {% for equipment in classroom.equipment.split(',') %}
+                            <span class="inline-flex items-center px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-md">
+                                {{ equipment.strip() }}
+                            </span>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Current Batch (if occupied) -->
+                {% if classroom.current_batches %}
+                <div class="space-y-2">
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-layer-group text-gray-400"></i>
+                        <span class="text-sm text-gray-600">Current Batches</span>
+                    </div>
+                    <div class="space-y-1">
+                        {% for batch in classroom.current_batches[:2] %}
+                        <div class="text-xs bg-brand/10 text-brand px-2 py-1 rounded">
+                            {{ batch.name }}
+                            {% if batch.schedule_days %}
+                                - {{ batch.schedule_days }}
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                        {% if classroom.current_batches|length > 2 %}
+                        <p class="text-xs text-gray-500">+{{ classroom.current_batches|length - 2 }} more</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Floor & Building Info -->
+                {% if classroom.floor or classroom.building %}
+                <div class="flex items-center justify-between text-xs text-gray-500">
+                    {% if classroom.building %}
+                    <span>
+                        <i class="fas fa-building mr-1"></i>
+                        {{ classroom.building }}
+                    </span>
+                    {% endif %}
+                    {% if classroom.floor %}
+                    <span>
+                        <i class="fas fa-layer-group mr-1"></i>
+                        Floor {{ classroom.floor }}
+                    </span>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Classroom Actions -->
+            <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <button class="text-xs text-brand hover:text-brand-700">
+                            <i class="fas fa-calendar-plus mr-1"></i>
+                            Schedule
+                        </button>
+                        
+                        <button class="text-xs text-gray-600 hover:text-gray-800">
+                            <i class="fas fa-history mr-1"></i>
+                            History
+                        </button>
+                    </div>
+                    
+                    <div class="flex items-center space-x-2">
+                        <a href="{{ url_for('admin_classroom_detail', classroom_id=classroom.id) }}" 
+                           class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-brand bg-brand/10 rounded-md hover:bg-brand/20 transition-colors duration-150">
+                            <i class="fas fa-eye mr-1"></i>
+                            View
+                        </a>
+                        
+                        <a href="{{ url_for('admin_classroom_edit', classroom_id=classroom.id) }}" 
+                           class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors duration-150">
+                            <i class="fas fa-edit mr-1"></i>
+                            Edit
+                        </a>
+                        
+                        <!-- Status Toggle Dropdown -->
+                        <div class="relative inline-block text-left">
+                            <button class="inline-flex items-center p-1.5 text-gray-400 hover:text-gray-600 rounded-md hover:bg-gray-100" 
+                                    onclick="toggleStatusDropdown(event, 'status-{{ classroom.id }}')">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            
+                            <div id="status-{{ classroom.id }}" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 border border-gray-200">
+                                <div class="py-1">
+                                    <button class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <i class="fas fa-check-circle mr-2 text-emerald-600"></i>
+                                        Mark Available
+                                    </button>
+                                    <button class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <i class="fas fa-users mr-2 text-blue-600"></i>
+                                        Mark Occupied
+                                    </button>
+                                    <button class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <i class="fas fa-tools mr-2 text-amber-600"></i>
+                                        Maintenance Mode
+                                    </button>
+                                    <div class="border-t border-gray-100 my-1"></div>
+                                    <button class="block w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-red-50">
+                                        <i class="fas fa-ban mr-2"></i>
+                                        Make Unavailable
+                                    </button>
+                                    <button onclick="confirmArchive('{{ classroom.name }}', '{{ url_for('admin_classroom_archive', classroom_id=classroom.id) }}')" 
+                                            class="block w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-red-50">
+                                        <i class="fas fa-archive mr-2"></i>
+                                        Archive Classroom
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <!-- Empty State -->
+    <div class="bg-white rounded-lg shadow p-12 text-center">
+        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <i class="fas fa-door-open text-gray-400 text-2xl"></i>
+        </div>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">No Classrooms Found</h3>
+        <p class="text-gray-500 mb-6">
+            Start setting up your learning spaces by adding your first classroom.
+        </p>
+        
+        <a href="{{ url_for('admin_classroom_create') }}" 
+           class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-brand rounded-md hover:bg-brand-700">
+            <i class="fas fa-plus mr-2"></i>
+            Add First Classroom
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Bulk Actions Modal (Hidden by default) -->
+<div id="bulkModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg max-w-md w-full p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-medium text-gray-900">Bulk Actions</h3>
+            <button onclick="closeBulkModal()" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="space-y-2">
+            <button class="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
+                <i class="fas fa-calendar-alt mr-3"></i>
+                Schedule Maintenance
+            </button>
+            <button class="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
+                <i class="fas fa-check-circle mr-3"></i>
+                Mark All Available
+            </button>
+            <button class="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
+                <i class="fas fa-download mr-3"></i>
+                Export Room List
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+// Status dropdown toggle function
+function toggleStatusDropdown(event, dropdownId) {
+    event.stopPropagation();
+    
+    // Close all other dropdowns
+    document.querySelectorAll('[id^="status-"]').forEach(dropdown => {
+        if (dropdown.id !== dropdownId) {
+            dropdown.classList.add('hidden');
+        }
+    });
+    
+    // Toggle current dropdown
+    const dropdown = document.getElementById(dropdownId);
+    dropdown.classList.toggle('hidden');
+}
+
+// Bulk modal functions
+function showBulkModal() {
+    document.getElementById('bulkModal').classList.remove('hidden');
+}
+
+function closeBulkModal() {
+    document.getElementById('bulkModal').classList.add('hidden');
+}
+
+// Close dropdowns and modals when clicking outside
+document.addEventListener('click', function() {
+    document.querySelectorAll('[id^="status-"]').forEach(dropdown => {
+        dropdown.classList.add('hidden');
+    });
+});
+
+// Close modal when clicking outside
+document.getElementById('bulkModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeBulkModal();
+    }
+});
+
+// Archive confirmation
+function confirmArchive(classroomName, archiveUrl) {
+    showConfirmModal(
+        'Archive Classroom',
+        `Are you sure you want to archive "${classroomName}"? This action can be undone later by reactivating the classroom.`,
+        function() {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = archiveUrl;
+            document.body.appendChild(form);
+            form.submit();
+        },
+        'Archive',
+        'fa-archive',
+        'text-amber-500'
+    );
+}
+</script>
+{% endblock %}

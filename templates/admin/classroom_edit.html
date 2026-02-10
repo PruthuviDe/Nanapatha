@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Classroom - {{ classroom.name }}{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="flex items-center justify-between mb-8">
+    <div>
+        <h1 class="text-3xl font-bold text-gray-900">Edit Classroom</h1>
+        <p class="mt-2 text-gray-600">Update classroom information and settings</p>
+    </div>
+    <div class="flex space-x-3">
+        <a href="{{ url_for('admin_classrooms') }}" 
+           class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+            <i class="fas fa-arrow-left mr-2"></i>
+            Back to Classrooms
+        </a>
+    </div>
+</div>
+
+<!-- Edit Form -->
+<div class="bg-white rounded-lg shadow">
+    <form method="POST" class="p-6 space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label for="name" class="block text-sm font-medium text-gray-700">Classroom Name *</label>
+                <input type="text" 
+                       id="name" 
+                       name="name" 
+                       value="{{ classroom.name }}"
+                       required 
+                       placeholder="e.g., Physics Lab A"
+                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-brand focus:border-brand">
+            </div>
+            
+            <div>
+                <label for="capacity" class="block text-sm font-medium text-gray-700">Capacity *</label>
+                <input type="number" 
+                       id="capacity" 
+                       name="capacity" 
+                       value="{{ classroom.capacity }}"
+                       required 
+                       min="1" 
+                       max="200"
+                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-brand focus:border-brand">
+            </div>
+            
+            <div class="md:col-span-2">
+                <label for="location" class="block text-sm font-medium text-gray-700">Location</label>
+                <input type="text" 
+                       id="location" 
+                       name="location" 
+                       value="{{ classroom.location or '' }}"
+                       placeholder="e.g., Science Block, 2nd Floor, East Wing"
+                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-brand focus:border-brand">
+            </div>
+            
+            <div class="md:col-span-2">
+                <label for="notes" class="block text-sm font-medium text-gray-700">Notes</label>
+                <textarea id="notes" 
+                          name="notes" 
+                          rows="4"
+                          placeholder="Equipment, special features, accessibility info..."
+                          class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-brand focus:border-brand">{{ classroom.notes or '' }}</textarea>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex items-center justify-end space-x-3 pt-6 border-t">
+            <a href="{{ url_for('admin_classrooms') }}" 
+               class="inline-flex items-center px-6 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand">
+                Cancel
+            </a>
+            
+            <button type="submit" 
+                    class="inline-flex items-center px-6 py-3 text-sm font-medium text-white bg-brand hover:bg-brand-700 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand">
+                <i class="fas fa-save mr-2"></i>
+                Update Classroom
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

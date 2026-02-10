@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}NanaPatha Admin Dashboard{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'brand': '#4F46E5',
+                        'brand-700': '#4338CA',
+                        'secondary': '#06B6D4',
+                        'accent': '#FBBF24'
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Modern Sidebar -->
+    <div class="fixed inset-y-0 left-0 z-50 w-16 lg:w-64 bg-white shadow-lg transform transition-all duration-300 ease-in-out" id="sidebar">
+        <!-- Logo Section -->
+        <div class="flex items-center justify-center lg:justify-start h-16 px-6 border-b border-gray-100">
+            <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center lg:mr-3">
+                <i class="fas fa-graduation-cap text-white"></i>
+            </div>
+            <h1 class="hidden lg:block text-xl font-bold text-gray-800">NanaPatha</h1>
+            <button class="lg:hidden text-gray-600 hover:text-gray-800 ml-auto" onclick="toggleSidebar()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <!-- Navigation -->
+        <nav class="mt-8 px-4">
+            <div class="space-y-2">
+                <a href="{{ url_for('admin_dashboard') }}" 
+                   class="group flex items-center px-3 py-3 text-sm font-medium rounded-xl transition-all duration-200 {% if request.endpoint == 'admin_dashboard' %}bg-blue-50 text-blue-600 border-r-2 border-blue-600{% else %}text-gray-600 hover:bg-gray-50 hover:text-gray-900{% endif %}">
+                    <div class="w-8 h-8 flex items-center justify-center rounded-lg {% if request.endpoint == 'admin_dashboard' %}bg-blue-100{% else %}group-hover:bg-gray-100{% endif %}">
+                        <i class="fas fa-th-large text-sm"></i>
+                    </div>
+                    <span class="hidden lg:block ml-3">Dashboard</span>
+                </a>
+                
+                <a href="{{ url_for('admin_registrations') }}" 
+                   class="group flex items-center px-3 py-3 text-sm font-medium rounded-xl transition-all duration-200 {% if request.endpoint in ['admin_registrations', 'admin_registration_detail'] %}bg-blue-50 text-blue-600 border-r-2 border-blue-600{% else %}text-gray-600 hover:bg-gray-50 hover:text-gray-900{% endif %}">
+                    <div class="w-8 h-8 flex items-center justify-center rounded-lg {% if request.endpoint in ['admin_registrations', 'admin_registration_detail'] %}bg-blue-100{% else %}group-hover:bg-gray-100{% endif %}">
+                        <i class="fas fa-user-plus text-sm"></i>
+                    </div>
+                    <span class="hidden lg:block ml-3">Registrations</span>
+                </a>
+                
+                <a href="{{ url_for('admin_students') }}" 
+                   class="group flex items-center px-3 py-3 text-sm font-medium rounded-xl transition-all duration-200 {% if request.endpoint in ['admin_students', 'admin_student_detail', 'admin_student_create'] %}bg-blue-50 text-blue-600 border-r-2 border-blue-600{% else %}text-gray-600 hover:bg-gray-50 hover:text-gray-900{% endif %}">
+                    <div class="w-8 h-8 flex items-center justify-center rounded-lg {% if request.endpoint in ['admin_students', 'admin_student_detail', 'admin_student_create'] %}bg-blue-100{% else %}group-hover:bg-gray-100{% endif %}">
+                        <i class="fas fa-graduation-cap text-sm"></i>
+                    </div>
+                    <span class="hidden lg:block ml-3">Students</span>
+                </a>
+                
+                <a href="{{ url_for('admin_teachers') }}" 
+                   class="group flex items-center px-3 py-3 text-sm font-medium rounded-xl transition-all duration-200 {% if request.endpoint in ['admin_teachers', 'admin_teacher_create'] %}bg-blue-50 text-blue-600 border-r-2 border-blue-600{% else %}text-gray-600 hover:bg-gray-50 hover:text-gray-900{% endif %}">
+                    <div class="w-8 h-8 flex items-center justify-center rounded-lg {% if request.endpoint in ['admin_teachers', 'admin_teacher_create'] %}bg-blue-100{% else %}group-hover:bg-gray-100{% endif %}">
+                        <i class="fas fa-chalkboard-teacher text-sm"></i>
+                    </div>
+                    <span class="hidden lg:block ml-3">Teachers</span>
+                </a>
+                
+                <a href="{{ url_for('admin_batches') }}" 
+                   class="group flex items-center px-3 py-3 text-sm font-medium rounded-xl transition-all duration-200 {% if request.endpoint in ['admin_batches', 'admin_batch_create'] %}bg-blue-50 text-blue-600 border-r-2 border-blue-600{% else %}text-gray-600 hover:bg-gray-50 hover:text-gray-900{% endif %}">
+                    <div class="w-8 h-8 flex items-center justify-center rounded-lg {% if request.endpoint in ['admin_batches', 'admin_batch_create'] %}bg-blue-100{% else %}group-hover:bg-gray-100{% endif %}">
+                        <i class="fas fa-layer-group text-sm"></i>
+                    </div>
+                    <span class="hidden lg:block ml-3">Batches</span>
+                </a>
+                
+                <a href="{{ url_for('admin_classrooms') }}" 
+                   class="group flex items-center px-3 py-3 text-sm font-medium rounded-xl transition-all duration-200 {% if request.endpoint in ['admin_classrooms', 'admin_classroom_create'] %}bg-blue-50 text-blue-600 border-r-2 border-blue-600{% else %}text-gray-600 hover:bg-gray-50 hover:text-gray-900{% endif %}">
+                    <div class="w-8 h-8 flex items-center justify-center rounded-lg {% if request.endpoint in ['admin_classrooms', 'admin_classroom_create'] %}bg-blue-100{% else %}group-hover:bg-gray-100{% endif %}">
+                        <i class="fas fa-door-open text-sm"></i>
+                    </div>
+                    <span class="hidden lg:block ml-3">Classrooms</span>
+                </a>
+                
+                <a href="{{ url_for('admin_schedule') }}" 
+                   class="group flex items-center px-3 py-3 text-sm font-medium rounded-xl transition-all duration-200 {% if request.endpoint == 'admin_schedule' %}bg-blue-50 text-blue-600 border-r-2 border-blue-600{% else %}text-gray-600 hover:bg-gray-50 hover:text-gray-900{% endif %}">
+                    <div class="w-8 h-8 flex items-center justify-center rounded-lg {% if request.endpoint == 'admin_schedule' %}bg-blue-100{% else %}group-hover:bg-gray-100{% endif %}">
+                        <i class="fas fa-calendar-alt text-sm"></i>
+                    </div>
+                    <span class="hidden lg:block ml-3">Schedule</span>
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="ml-16 lg:ml-64">
+        <!-- Top Bar -->
+        <header class="bg-white shadow-sm border-b h-16 flex items-center justify-between px-6">
+            <div class="flex items-center">
+                <button class="lg:hidden text-gray-600 hover:text-gray-800 mr-4" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                
+                <div class="relative">
+                    <input type="text" 
+                           placeholder="Search..." 
+                           class="w-80 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center">
+                        <i class="fas fa-search text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <button class="relative text-gray-600 hover:text-gray-800">
+                    <i class="fas fa-bell text-lg"></i>
+                    <span class="absolute -top-1 -right-1 h-3 w-3 bg-rose-500 rounded-full"></span>
+                </button>
+                
+                <!-- Admin Profile Dropdown -->
+                <div class="relative" id="profileDropdown">
+                    <button onclick="toggleProfileDropdown()" class="flex items-center space-x-3 hover:bg-gray-50 rounded-lg p-2 transition-colors">
+                        <div class="w-8 h-8 bg-brand rounded-full flex items-center justify-center">
+                            <span class="text-white text-sm font-medium">W</span>
+                        </div>
+                        <div class="text-left hidden sm:block">
+                            <p class="text-sm font-medium text-gray-700">William</p>
+                            <p class="text-xs text-gray-500">Super Admin</p>
+                        </div>
+                        <i class="fas fa-chevron-down text-gray-400 text-xs"></i>
+                    </button>
+                    
+                    <!-- Dropdown Menu -->
+                    <div id="profileDropdownMenu" class="hidden absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                        <div class="px-4 py-3 border-b border-gray-100">
+                            <p class="text-sm font-medium text-gray-900">William</p>
+                            <p class="text-xs text-gray-500">admin@nanapatha.com</p>
+                        </div>
+                        
+                        <a href="{{ url_for('admin_profile') }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                            <i class="fas fa-user-circle mr-3 text-gray-400"></i>
+                            My Profile
+                        </a>
+                        
+                        <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                            <i class="fas fa-cog mr-3 text-gray-400"></i>
+                            Settings
+                        </a>
+                        
+                        <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                            <i class="fas fa-question-circle mr-3 text-gray-400"></i>
+                            Help & Support
+                        </a>
+                        
+                        <div class="border-t border-gray-100 mt-2 pt-2">
+                            <a href="#" class="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                                <i class="fas fa-sign-out-alt mr-3"></i>
+                                Sign Out
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="p-4">
+                    {% for category, message in messages %}
+                        <div class="mb-2 p-4 rounded-md {% if category == 'error' %}bg-rose-100 text-rose-800 border border-rose-200{% else %}bg-emerald-100 text-emerald-800 border border-emerald-200{% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Main Content Area -->
+        <main class="p-6">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <!-- Modal Overlay -->
+    <div id="modalOverlay" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50" onclick="closeModal()">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div id="modalContent" class="bg-white rounded-lg shadow-xl max-w-md w-full" onclick="event.stopPropagation()">
+                <!-- Modal content will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-md w-full" onclick="event.stopPropagation()">
+                <div class="p-6">
+                    <div class="flex items-center mb-4">
+                        <div class="flex-shrink-0">
+                            <i id="confirmIcon" class="fas fa-exclamation-triangle text-yellow-500 text-2xl"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h3 id="confirmTitle" class="text-lg font-medium text-gray-900">
+                                Confirm Action
+                            </h3>
+                        </div>
+                    </div>
+                    <div class="mb-6">
+                        <p id="confirmMessage" class="text-sm text-gray-600">
+                            Are you sure you want to proceed with this action?
+                        </p>
+                    </div>
+                    <div class="flex justify-end space-x-3">
+                        <button onclick="closeConfirmModal()" 
+                                class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                            Cancel
+                        </button>
+                        <button id="confirmButton" onclick="executeConfirmAction()" 
+                                class="px-4 py-2 text-sm font-medium text-white bg-rose-600 border border-transparent rounded-md hover:bg-rose-700">
+                            Confirm
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        }
+
+        function openModal(title, content) {
+            const overlay = document.getElementById('modalOverlay');
+            const modalContent = document.getElementById('modalContent');
+            modalContent.innerHTML = content;
+            overlay.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            const overlay = document.getElementById('modalOverlay');
+            overlay.classList.add('hidden');
+        }
+
+        function claimRegistration(regId) {
+            fetch(`/admin/registrations/${regId}/claim`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                }
+            });
+        }
+
+        function showRejectModal(regId) {
+            const content = `
+                <form action="/admin/registrations/${regId}/reject" method="POST" class="p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Reject Registration</h3>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Reason for rejection:
+                        </label>
+                        <textarea name="reason" rows="4" required 
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand focus:border-transparent"
+                                  placeholder="Please provide a reason for rejection..."></textarea>
+                    </div>
+                    <div class="flex justify-end space-x-3">
+                        <button type="button" onclick="closeModal()" 
+                                class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                            Cancel
+                        </button>
+                        <button type="submit" 
+                                class="px-4 py-2 text-sm font-medium text-white bg-rose-600 border border-transparent rounded-md hover:bg-rose-700">
+                            Reject Registration
+                        </button>
+                    </div>
+                </form>
+            `;
+            openModal('Reject Registration', content);
+        }
+
+        // Confirmation Modal Functions
+        let confirmCallback = null;
+
+        function showConfirmModal(title, message, callback, buttonText = 'Confirm', iconClass = 'fa-exclamation-triangle', iconColor = 'text-yellow-500') {
+            document.getElementById('confirmTitle').textContent = title;
+            document.getElementById('confirmMessage').textContent = message;
+            document.getElementById('confirmButton').textContent = buttonText;
+            document.getElementById('confirmIcon').className = `fas ${iconClass} ${iconColor} text-2xl`;
+            
+            confirmCallback = callback;
+            document.getElementById('confirmModal').classList.remove('hidden');
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirmModal').classList.add('hidden');
+            confirmCallback = null;
+        }
+
+        function executeConfirmAction() {
+            if (confirmCallback) {
+                confirmCallback();
+            }
+            closeConfirmModal();
+        }
+
+        // Close confirmation modal when clicking outside
+        document.getElementById('confirmModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeConfirmModal();
+            }
+        });
+
+        // Profile Dropdown Functions
+        function toggleProfileDropdown() {
+            const dropdown = document.getElementById('profileDropdownMenu');
+            dropdown.classList.toggle('hidden');
+        }
+
+        // Close profile dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('profileDropdown');
+            if (!dropdown.contains(event.target)) {
+                document.getElementById('profileDropdownMenu').classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

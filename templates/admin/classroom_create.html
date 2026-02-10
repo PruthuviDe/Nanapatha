@@ -1,0 +1,436 @@
+{% extends "base.html" %}
+
+{% block title %}Create Classroom - NanaPatha{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto space-y-6">
+    <!-- Page Header -->
+    <div class="flex items-center space-x-4">
+        <a href="{{ url_for('admin_classrooms') }}" 
+           class="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-md transition-colors duration-150">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        
+        <div>
+            <h1 class="text-2xl font-semibold text-gray-900">Add New Classroom</h1>
+            <p class="text-sm text-gray-500 mt-1">Set up a new learning space for students and teachers</p>
+        </div>
+    </div>
+
+    <!-- Classroom Creation Form -->
+    <div class="bg-white rounded-lg shadow p-8">
+        <form method="POST" class="space-y-8">
+            <!-- Basic Information -->
+            <div>
+                <h3 class="text-lg font-medium text-gray-900 mb-4">
+                    <i class="fas fa-info-circle text-brand mr-2"></i>
+                    Basic Information
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Room Name -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Room Name <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" name="name" required
+                               placeholder="e.g., Physics Lab A, Room 201" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand focus:border-transparent">
+                    </div>
+                    
+                    <!-- Room Code -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Room Code
+                        </label>
+                        <input type="text" name="room_code"
+                               placeholder="e.g., PLA-01, R201" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand focus:border-transparent">
+                        <p class="text-xs text-gray-500 mt-1">Unique identifier for the room</p>
+                    </div>
+                    
+                    <!-- Capacity -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Seating Capacity <span class="text-red-500">*</span>
+                        </label>
+                        <input type="number" name="capacity" required min="1" max="200" value="25"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand focus:border-transparent">
+                    </div>
+                    
+                    <!-- Room Type -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Room Type
+                        </label>
+                        <select name="room_type"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand focus:border-transparent">
+                            <option value="classroom">Standard Classroom</option>
+                            <option value="laboratory">Laboratory</option>
+                            <option value="lecture_hall">Lecture Hall</option>
+                            <option value="seminar_room">Seminar Room</option>
+                            <option value="computer_lab">Computer Lab</option>
+                            <option value="library">Library</option>
+                            <option value="auditorium">Auditorium</option>
+                            <option value="study_room">Study Room</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Description -->
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Description
+                        </label>
+                        <textarea name="description" rows="3"
+                                  placeholder="Brief description of the classroom, its purpose, or special features" 
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand focus:border-transparent"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Location Information -->
+            <div class="border-t pt-8">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">
+                    <i class="fas fa-map-marker-alt text-brand mr-2"></i>
+                    Location Details
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Building -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Building
+                        </label>
+                        <input type="text" name="building"
+                               placeholder="e.g., Main Building, Science Block" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand focus:border-transparent">
+                    </div>
+                    
+                    <!-- Floor -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Floor
+                        </label>
+                        <select name="floor"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand focus:border-transparent">
+                            <option value="">Select Floor</option>
+                            <option value="Ground">Ground Floor</option>
+                            <option value="1">1st Floor</option>
+                            <option value="2">2nd Floor</option>
+                            <option value="3">3rd Floor</option>
+                            <option value="4">4th Floor</option>
+                            <option value="5">5th Floor</option>
+                            <option value="Basement">Basement</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Wing/Section -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Wing/Section
+                        </label>
+                        <input type="text" name="wing"
+                               placeholder="e.g., East Wing, Block A" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand focus:border-transparent">
+                    </div>
+                    
+                    <!-- Full Location -->
+                    <div class="md:col-span-3">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Complete Location Address
+                        </label>
+                        <input type="text" name="location"
+                               placeholder="e.g., Main Building, 2nd Floor, East Wing, Room 201" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand focus:border-transparent">
+                        <p class="text-xs text-gray-500 mt-1">This will be auto-generated from the fields above if left empty</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Equipment & Facilities -->
+            <div class="border-t pt-8">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">
+                    <i class="fas fa-tools text-brand mr-2"></i>
+                    Equipment & Facilities
+                </h3>
+                
+                <div class="space-y-6">
+                    <!-- Equipment Checkboxes -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-3">
+                            Available Equipment
+                        </label>
+                        
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                            <label class="flex items-center">
+                                <input type="checkbox" name="equipment" value="whiteboard"
+                                       class="w-4 h-4 text-brand border-gray-300 rounded focus:ring-brand">
+                                <span class="ml-2 text-sm text-gray-700">Whiteboard</span>
+                            </label>
+                            
+                            <label class="flex items-center">
+                                <input type="checkbox" name="equipment" value="blackboard"
+                                       class="w-4 h-4 text-brand border-gray-300 rounded focus:ring-brand">
+                                <span class="ml-2 text-sm text-gray-700">Blackboard</span>
+                            </label>
+                            
+                            <label class="flex items-center">
+                                <input type="checkbox" name="equipment" value="projector"
+                                       class="w-4 h-4 text-brand border-gray-300 rounded focus:ring-brand">
+                                <span class="ml-2 text-sm text-gray-700">Projector</span>
+                            </label>
+                            
+                            <label class="flex items-center">
+                                <input type="checkbox" name="equipment" value="smart_board"
+                                       class="w-4 h-4 text-brand border-gray-300 rounded focus:ring-brand">
+                                <span class="ml-2 text-sm text-gray-700">Smart Board</span>
+                            </label>
+                            
+                            <label class="flex items-center">
+                                <input type="checkbox" name="equipment" value="computer"
+                                       class="w-4 h-4 text-brand border-gray-300 rounded focus:ring-brand">
+                                <span class="ml-2 text-sm text-gray-700">Computer</span>
+                            </label>
+                            
+                            <label class="flex items-center">
+                                <input type="checkbox" name="equipment" value="speakers"
+                                       class="w-4 h-4 text-brand border-gray-300 rounded focus:ring-brand">
+                                <span class="ml-2 text-sm text-gray-700">Audio System</span>
+                            </label>
+                            
+                            <label class="flex items-center">
+                                <input type="checkbox" name="equipment" value="microphone"
+                                       class="w-4 h-4 text-brand border-gray-300 rounded focus:ring-brand">
+                                <span class="ml-2 text-sm text-gray-700">Microphone</span>
+                            </label>
+                            
+                            <label class="flex items-center">
+                                <input type="checkbox" name="equipment" value="air_conditioning"
+                                       class="w-4 h-4 text-brand border-gray-300 rounded focus:ring-brand">
+                                <span class="ml-2 text-sm text-gray-700">Air Conditioning</span>
+                            </label>
+                            
+                            <label class="flex items-center">
+                                <input type="checkbox" name="equipment" value="wifi"
+                                       class="w-4 h-4 text-brand border-gray-300 rounded focus:ring-brand">
+                                <span class="ml-2 text-sm text-gray-700">WiFi</span>
+                            </label>
+                            
+                            <label class="flex items-center">
+                                <input type="checkbox" name="equipment" value="power_outlets"
+                                       class="w-4 h-4 text-brand border-gray-300 rounded focus:ring-brand">
+                                <span class="ml-2 text-sm text-gray-700">Power Outlets</span>
+                            </label>
+                            
+                            <label class="flex items-center">
+                                <input type="checkbox" name="equipment" value="natural_light"
+                                       class="w-4 h-4 text-brand border-gray-300 rounded focus:ring-brand">
+                                <span class="ml-2 text-sm text-gray-700">Natural Light</span>
+                            </label>
+                            
+                            <label class="flex items-center">
+                                <input type="checkbox" name="equipment" value="laboratory_equipment"
+                                       class="w-4 h-4 text-brand border-gray-300 rounded focus:ring-brand">
+                                <span class="ml-2 text-sm text-gray-700">Lab Equipment</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Additional Equipment -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Additional Equipment/Notes
+                        </label>
+                        <textarea name="additional_equipment" rows="2"
+                                  placeholder="Any additional equipment or special features not listed above" 
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand focus:border-transparent"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Availability & Settings -->
+            <div class="border-t pt-8">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">
+                    <i class="fas fa-cog text-brand mr-2"></i>
+                    Availability & Settings
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Initial Status -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Initial Status
+                        </label>
+                        <select name="status"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand focus:border-transparent">
+                            <option value="available">Available</option>
+                            <option value="maintenance">Under Maintenance</option>
+                            <option value="unavailable">Unavailable</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Priority Level -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Priority Level
+                        </label>
+                        <select name="priority"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand focus:border-transparent">
+                            <option value="normal">Normal</option>
+                            <option value="high">High Priority</option>
+                            <option value="low">Low Priority</option>
+                        </select>
+                        <p class="text-xs text-gray-500 mt-1">High priority rooms are preferred for important classes</p>
+                    </div>
+                    
+                    <!-- Accessibility -->
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-3">
+                            Accessibility Features
+                        </label>
+                        
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <label class="flex items-center">
+                                <input type="checkbox" name="accessibility" value="wheelchair_accessible"
+                                       class="w-4 h-4 text-brand border-gray-300 rounded focus:ring-brand">
+                                <span class="ml-2 text-sm text-gray-700">Wheelchair Accessible</span>
+                            </label>
+                            
+                            <label class="flex items-center">
+                                <input type="checkbox" name="accessibility" value="hearing_loop"
+                                       class="w-4 h-4 text-brand border-gray-300 rounded focus:ring-brand">
+                                <span class="ml-2 text-sm text-gray-700">Hearing Loop</span>
+                            </label>
+                            
+                            <label class="flex items-center">
+                                <input type="checkbox" name="accessibility" value="elevator_access"
+                                       class="w-4 h-4 text-brand border-gray-300 rounded focus:ring-brand">
+                                <span class="ml-2 text-sm text-gray-700">Elevator Access</span>
+                            </label>
+                            
+                            <label class="flex items-center">
+                                <input type="checkbox" name="accessibility" value="adjustable_lighting"
+                                       class="w-4 h-4 text-brand border-gray-300 rounded focus:ring-brand">
+                                <span class="ml-2 text-sm text-gray-700">Adjustable Lighting</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Booking Settings -->
+                <div class="mt-6 space-y-4">
+                    <div class="border-t pt-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-3">
+                            Booking & Usage Settings
+                        </label>
+                        
+                        <div class="space-y-3">
+                            <label class="flex items-center">
+                                <input type="checkbox" name="allow_booking" checked
+                                       class="w-4 h-4 text-brand border-gray-300 rounded focus:ring-brand">
+                                <span class="ml-2 text-sm text-gray-700">
+                                    Allow room booking for classes
+                                </span>
+                            </label>
+                            
+                            <label class="flex items-center">
+                                <input type="checkbox" name="require_approval"
+                                       class="w-4 h-4 text-brand border-gray-300 rounded focus:ring-brand">
+                                <span class="ml-2 text-sm text-gray-700">
+                                    Require approval for bookings
+                                </span>
+                            </label>
+                            
+                            <label class="flex items-center">
+                                <input type="checkbox" name="auto_cleanup"
+                                       class="w-4 h-4 text-brand border-gray-300 rounded focus:ring-brand">
+                                <span class="ml-2 text-sm text-gray-700">
+                                    Schedule automatic cleaning after use
+                                </span>
+                            </label>
+                            
+                            <label class="flex items-center">
+                                <input type="checkbox" name="visible_in_portal" checked
+                                       class="w-4 h-4 text-brand border-gray-300 rounded focus:ring-brand">
+                                <span class="ml-2 text-sm text-gray-700">
+                                    Show room in student/teacher portal
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="border-t pt-8 flex items-center justify-end space-x-4">
+                <a href="{{ url_for('admin_classrooms') }}" 
+                   class="px-6 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors duration-150">
+                    Cancel
+                </a>
+                
+                <button type="submit" 
+                        class="px-6 py-2 text-sm font-medium text-white bg-brand rounded-md hover:bg-brand-700 transition-colors duration-150">
+                    <i class="fas fa-save mr-2"></i>
+                    Create Classroom
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+// Auto-generate location from building, floor, wing
+document.addEventListener('DOMContentLoaded', function() {
+    const buildingInput = document.querySelector('input[name="building"]');
+    const floorSelect = document.querySelector('select[name="floor"]');
+    const wingInput = document.querySelector('input[name="wing"]');
+    const locationInput = document.querySelector('input[name="location"]');
+    const nameInput = document.querySelector('input[name="name"]');
+    
+    function generateLocation() {
+        if (locationInput.value.trim() === '') {
+            const parts = [];
+            
+            if (buildingInput.value) parts.push(buildingInput.value);
+            if (floorSelect.value) {
+                parts.push(floorSelect.value === 'Ground' ? 'Ground Floor' : 
+                          floorSelect.value === 'Basement' ? 'Basement' : 
+                          `${floorSelect.value}${floorSelect.value === '1' ? 'st' : 
+                                                 floorSelect.value === '2' ? 'nd' : 
+                                                 floorSelect.value === '3' ? 'rd' : 'th'} Floor`);
+            }
+            if (wingInput.value) parts.push(wingInput.value);
+            if (nameInput.value) parts.push(nameInput.value);
+            
+            locationInput.placeholder = parts.join(', ') || 'Enter complete location';
+        }
+    }
+    
+    buildingInput.addEventListener('input', generateLocation);
+    floorSelect.addEventListener('change', generateLocation);
+    wingInput.addEventListener('input', generateLocation);
+    nameInput.addEventListener('input', generateLocation);
+    
+    // Auto-generate room code based on name
+    nameInput.addEventListener('input', function() {
+        const roomCodeInput = document.querySelector('input[name="room_code"]');
+        if (roomCodeInput.value.trim() === '') {
+            const name = nameInput.value.toUpperCase();
+            let code = '';
+            
+            // Extract meaningful parts for code generation
+            if (name.includes('LAB')) {
+                code = name.replace(/[^A-Z0-9]/g, '').substring(0, 6);
+            } else if (name.includes('ROOM')) {
+                const numbers = name.match(/\d+/);
+                code = numbers ? `R${numbers[0]}` : name.substring(0, 4);
+            } else {
+                code = name.replace(/[^A-Z0-9]/g, '').substring(0, 5);
+            }
+            
+            roomCodeInput.placeholder = code || 'Auto-generated';
+        }
+    });
+});
+</script>
+{% endblock %}

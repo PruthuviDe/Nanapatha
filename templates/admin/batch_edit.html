@@ -1,0 +1,230 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Batch - {{ batch.name }}{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="flex items-center justify-between mb-8">
+    <div>
+        <h1 class="text-3xl font-bold text-gray-900">Edit Batch</h1>
+        <p class="mt-2 text-gray-600">Update batch information and settings</p>
+    </div>
+    <div class="flex space-x-3">
+        <a href="{{ url_for('admin_batch_detail', batch_id=batch.id) }}" 
+           class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+            <i class="fas fa-arrow-left mr-2"></i>
+            Back to Batch
+        </a>
+    </div>
+</div>
+
+<!-- Edit Form -->
+<div class="bg-white rounded-lg shadow">
+    <form method="POST" class="p-6 space-y-6">
+        <!-- Basic Information Section -->
+        <div class="border-b border-gray-200 pb-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">Basic Information</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="name" class="block text-sm font-medium text-gray-700">Batch Name *</label>
+                    <input type="text" 
+                           id="name" 
+                           name="name" 
+                           value="{{ batch.name }}"
+                           required 
+                           placeholder="e.g., A/L Physics 2026 - Batch A"
+                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-brand focus:border-brand">
+                </div>
+                
+                <div>
+                    <label for="subject" class="block text-sm font-medium text-gray-700">Subject *</label>
+                    <select id="subject" 
+                            name="subject"
+                            required
+                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-brand focus:border-brand">
+                        <option value="">Select Subject</option>
+                        {% for subject in ['Physics', 'Chemistry', 'Mathematics', 'Biology', 'English', 'History', 'Geography', 'Economics', 'Computer Science'] %}
+                        <option value="{{ subject }}" 
+                            {% if batch.subject == subject %}selected{% endif %}>
+                            {{ subject }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="grade" class="block text-sm font-medium text-gray-700">Grade Level *</label>
+                    <select id="grade" 
+                            name="grade"
+                            required
+                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-brand focus:border-brand">
+                        <option value="">Select Grade</option>
+                        {% for grade in ['6', '7', '8', '9', '10', '11', '12', '13'] %}
+                        <option value="{{ grade }}" 
+                            {% if batch.grade == grade %}selected{% endif %}>
+                            Grade {{ grade }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="capacity" class="block text-sm font-medium text-gray-700">Capacity *</label>
+                    <input type="number" 
+                           id="capacity" 
+                           name="capacity" 
+                           value="{{ batch.capacity }}"
+                           required 
+                           min="1" 
+                           max="100"
+                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-brand focus:border-brand">
+                </div>
+                
+                <div>
+                    <label for="teacher_name" class="block text-sm font-medium text-gray-700">Teacher *</label>
+                    <select id="teacher_name" 
+                            name="teacher_name"
+                            required
+                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-brand focus:border-brand">
+                        <option value="">Select Teacher</option>
+                        {% for teacher in teachers %}
+                        <option value="{{ teacher.name }}" 
+                            {% if batch.teacher_name == teacher.name %}selected{% endif %}>
+                            {{ teacher.name }}
+                            {% if teacher.teacher_profile and teacher.teacher_profile.subjects %}
+                                ({{ teacher.teacher_profile.subjects | join(', ') }})
+                            {% endif %}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="class_type" class="block text-sm font-medium text-gray-700">Class Type *</label>
+                    <select id="class_type" 
+                            name="class_type"
+                            required
+                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-brand focus:border-brand">
+                        <option value="">Select Type</option>
+                        <option value="online" 
+                            {% if batch.class_type == 'online' %}selected{% endif %}>
+                            Online Classes
+                        </option>
+                        <option value="physical" 
+                            {% if batch.class_type == 'physical' %}selected{% endif %}>
+                            Physical Classes
+                        </option>
+                        <option value="both" 
+                            {% if batch.class_type == 'both' %}selected{% endif %}>
+                            Both Online & Physical
+                        </option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Information Section -->
+        <div class="border-b border-gray-200 pb-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">Additional Information</h2>
+            <div>
+                <label for="notes" class="block text-sm font-medium text-gray-700">Notes</label>
+                <textarea id="notes" 
+                          name="notes" 
+                          rows="4"
+                          placeholder="Enter schedule details, special requirements, or any additional notes..."
+                          class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-brand focus:border-brand">{{ batch.notes or '' }}</textarea>
+            </div>
+        </div>
+
+        <!-- Current Enrollment Info -->
+        <div class="bg-gray-50 rounded-lg p-4">
+            <h3 class="text-sm font-medium text-gray-700 mb-2">Current Enrollment</h3>
+            <div class="grid grid-cols-3 gap-4 text-sm">
+                <div>
+                    <span class="text-gray-500">Enrolled Students:</span>
+                    <span class="font-medium">{{ batch.students | length }}</span>
+                </div>
+                <div>
+                    <span class="text-gray-500">Available Spots:</span>
+                    <span class="font-medium">{{ batch.capacity - (batch.students | length) }}</span>
+                </div>
+                <div>
+                    <span class="text-gray-500">Capacity Usage:</span>
+                    <span class="font-medium">{{ ((batch.students | length) / batch.capacity * 100) | round(1) }}%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex items-center justify-between pt-6">
+            <div class="flex space-x-3">
+                <button type="submit" 
+                        class="inline-flex items-center px-6 py-3 text-sm font-medium text-white bg-brand hover:bg-brand-700 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand">
+                    <i class="fas fa-save mr-2"></i>
+                    Update Batch
+                </button>
+                
+                <a href="{{ url_for('admin_batch_detail', batch_id=batch.id) }}" 
+                   class="inline-flex items-center px-6 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand">
+                    Cancel
+                </a>
+            </div>
+            
+            <button type="button" 
+                    onclick="confirmArchive()"
+                    class="inline-flex items-center px-4 py-2 text-sm font-medium text-red-600 bg-red-50 border border-red-200 rounded-md hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                <i class="fas fa-archive mr-2"></i>
+                Archive Batch
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Archive Confirmation Modal -->
+<div id="archiveModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3 text-center">
+            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+                <i class="fas fa-archive text-red-600 text-xl"></i>
+            </div>
+            <h3 class="text-lg font-medium text-gray-900 mt-4">Archive Batch</h3>
+            <div class="mt-2 px-7 py-3">
+                <p class="text-sm text-gray-500">
+                    Are you sure you want to archive <strong>{{ batch.name }}</strong>? 
+                    This will mark the batch as archived and affect {{ batch.students | length }} enrolled students.
+                </p>
+            </div>
+            <div class="items-center px-4 py-3">
+                <form method="POST" action="{{ url_for('admin_batch_archive', batch_id=batch.id) }}" class="inline">
+                    <button type="submit" 
+                            class="px-4 py-2 bg-red-600 text-white text-base font-medium rounded-md w-20 mr-2 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">
+                        Archive
+                    </button>
+                </form>
+                <button onclick="closeModal()" 
+                        class="px-4 py-2 bg-gray-300 text-gray-900 text-base font-medium rounded-md w-20 hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmArchive() {
+    document.getElementById('archiveModal').classList.remove('hidden');
+}
+
+function closeModal() {
+    document.getElementById('archiveModal').classList.add('hidden');
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const modal = document.getElementById('archiveModal');
+    if (event.target == modal) {
+        closeModal();
+    }
+}
+</script>
+{% endblock %}

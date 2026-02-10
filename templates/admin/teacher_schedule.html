@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+
+{% block title %}Schedule - {{ teacher.user.name }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-6 py-8">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-8">
+        <div class="flex items-center space-x-4">
+            <a href="{{ url_for('admin_teachers') }}" 
+               class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-arrow-left text-xl"></i>
+            </a>
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Schedule Management</h1>
+                <p class="text-gray-600">{{ teacher.user.name }}'s class schedule and assignments</p>
+            </div>
+        </div>
+        <div class="flex space-x-3">
+            <a href="{{ url_for('admin_schedule_create_form') }}"
+               class="bg-brand text-white px-4 py-2 rounded-md hover:bg-brand-700 transition-colors duration-150">
+                <i class="fas fa-calendar-plus mr-2"></i>
+                Schedule New Session
+            </a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Assigned Batches -->
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-lg shadow">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">
+                        Assigned Batches ({{ assigned_batches|length }})
+                    </h3>
+                </div>
+                <div class="p-6">
+                    {% if assigned_batches %}
+                        <div class="space-y-4">
+                            {% for batch in assigned_batches %}
+                            <div class="border border-gray-200 rounded-lg p-4">
+                                <div class="flex items-center justify-between mb-3">
+                                    <div>
+                                        <h4 class="text-lg font-medium text-gray-900">{{ batch.name }}</h4>
+                                        <p class="text-sm text-gray-600">
+                                            {{ batch.current_enrollment }}/{{ batch.capacity }} students
+                                        </p>
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <a href="{{ url_for('admin_schedule_create_form') }}?batch_id={{ batch.id }}"
+                                           class="text-brand hover:text-brand-700">
+                                            <i class="fas fa-calendar-plus"></i>
+                                        </a>
+                                        <a href="{{ url_for('admin_batch_detail', batch_id=batch.id) }}"
+                                           class="text-gray-600 hover:text-gray-700">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                                
+                                <div class="grid grid-cols-2 gap-4 text-sm">
+                                    {% if batch.start_date %}
+                                    <div>
+                                        <span class="text-gray-600">Start Date:</span>
+                                        <span class="font-medium">{{ batch.start_date.strftime('%m/%d/%Y') }}</span>
+                                    </div>
+                                    {% endif %}
+                                    {% if batch.end_date %}
+                                    <div>
+                                        <span class="text-gray-600">End Date:</span>
+                                        <span class="font-medium">{{ batch.end_date.strftime('%m/%d/%Y') }}</span>
+                                    </div>
+                                    {% endif %}
+                                    <div>
+                                        <span class="text-gray-600">Subject:</span>
+                                        <span class="font-medium">{{ batch.subject or 'Not specified' }}</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-600">Grade:</span>
+                                        <span class="font-medium">{{ batch.grade or 'Not specified' }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-8">
+                            <i class="fas fa-layer-group text-gray-300 text-4xl mb-4"></i>
+                            <p class="text-gray-500">No batches assigned to this teacher</p>
+                            <a href="{{ url_for('admin_teacher_assign_batch', teacher_id=teacher.id) }}"
+                               class="inline-flex items-center mt-4 px-4 py-2 text-sm font-medium text-white bg-brand rounded-md hover:bg-brand-700">
+                                <i class="fas fa-plus mr-2"></i>
+                                Assign First Batch
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Upcoming Sessions -->
+            <div class="bg-white rounded-lg shadow mt-6">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">
+                        Scheduled Sessions ({{ sessions|length }})
+                    </h3>
+                </div>
+                <div class="p-6">
+                    {% if sessions %}
+                        <div class="space-y-3">
+                            {% for session in sessions %}
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <div>
+                                    <h4 class="font-medium text-gray-900">
+                                        {% if session.topic %}{{ session.topic }}{% else %}{{ session.batch.name }}{% endif %}
+                                    </h4>
+                                    <p class="text-sm text-gray-600">
+                                        {{ session.date.strftime('%B %d, %Y') }} | {{ session.start_time.strftime('%I:%M %p') }} - {{ session.end_time.strftime('%I:%M %p') }}
+                                    </p>
+                                </div>
+                                <div>
+                                    <span class="text-xs px-2 py-1 rounded-full
+                                        {% if session.status == 'scheduled' %}bg-blue-100 text-blue-800
+                                        {% elif session.status == 'completed' %}bg-green-100 text-green-800
+                                        {% else %}bg-red-100 text-red-800{% endif %}">
+                                        {{ session.status.title() }}
+                                    </span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-8">
+                            <i class="fas fa-calendar-alt text-gray-300 text-4xl mb-4"></i>
+                            <p class="text-gray-500">No scheduled sessions</p>
+                            <a href="{{ url_for('admin_schedule_create_form') }}"
+                               class="inline-flex items-center mt-4 px-4 py-2 text-sm font-medium text-white bg-brand rounded-md hover:bg-brand-700">
+                                <i class="fas fa-calendar-plus mr-2"></i>
+                                Schedule First Session
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Teacher Info & Quick Actions -->
+        <div class="lg:col-span-1">
+            <!-- Teacher Summary -->
+            <div class="bg-white rounded-lg shadow mb-6">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Teacher Summary</h3>
+                </div>
+                <div class="p-6">
+                    <div class="text-center mb-4">
+                        <div class="w-16 h-16 bg-brand/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <i class="fas fa-user-tie text-brand text-2xl"></i>
+                        </div>
+                        <h4 class="text-lg font-medium text-gray-900">{{ teacher.user.name }}</h4>
+                        <p class="text-sm text-gray-600">{{ teacher.user.email }}</p>
+                    </div>
+
+                    <div class="space-y-3 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Total Batches:</span>
+                            <span class="font-medium">{{ assigned_batches|length }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Total Sessions:</span>
+                            <span class="font-medium">{{ sessions|length }}</span>
+                        </div>
+                        {% if teacher.subjects %}
+                        <div class="pt-3 border-t border-gray-200">
+                            <span class="text-gray-600 text-xs font-medium">Specialization:</span>
+                            <p class="text-sm font-medium mt-1">{{ teacher.subjects[:100] }}{% if teacher.subjects|length > 100 %}...{% endif %}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="bg-white rounded-lg shadow">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Quick Actions</h3>
+                </div>
+                <div class="p-6">
+                    <div class="space-y-3">
+                        <a href="{{ url_for('admin_schedule_create_form') }}"
+                           class="block w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 rounded-md border border-gray-200">
+                            <i class="fas fa-calendar-plus mr-3 text-gray-600"></i>
+                            Schedule New Session
+                        </a>
+                        
+                        <a href="{{ url_for('admin_teacher_teaching_load', teacher_id=teacher.id) }}"
+                           class="block w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 rounded-md border border-gray-200">
+                            <i class="fas fa-chart-line mr-3 text-gray-600"></i>
+                            View Teaching Load
+                        </a>
+                        
+                        <a href="{{ url_for('admin_teacher_performance', teacher_id=teacher.id) }}"
+                           class="block w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 rounded-md border border-gray-200">
+                            <i class="fas fa-chart-bar mr-3 text-gray-600"></i>
+                            View Performance
+                        </a>
+                        
+                        <a href="{{ url_for('admin_teacher_assign_batch', teacher_id=teacher.id) }}"
+                           class="block w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 rounded-md border border-gray-200">
+                            <i class="fas fa-layer-group mr-3 text-gray-600"></i>
+                            Assign to Batch
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block title %}Assign Teacher - {{ batch.name }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-6 py-8">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-8">
+        <div class="flex items-center space-x-4">
+            <a href="{{ url_for('admin_batches') }}" 
+               class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-arrow-left text-xl"></i>
+            </a>
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Assign Teacher</h1>
+                <p class="text-gray-600">Assign a teacher to {{ batch.name }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-2xl mx-auto">
+        <div class="bg-white rounded-lg shadow p-6">
+            <!-- Current Batch Info -->
+            <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+                <h3 class="text-lg font-medium text-gray-900 mb-2">Batch Information</h3>
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <span class="text-gray-600">Batch Name:</span>
+                        <span class="font-medium">{{ batch.name }}</span>
+                    </div>
+                    <div>
+                        <span class="text-gray-600">Capacity:</span>
+                        <span class="font-medium">{{ batch.capacity }} students</span>
+                    </div>
+                    <div>
+                        <span class="text-gray-600">Current Enrollment:</span>
+                        <span class="font-medium">{{ batch.current_enrollment }}/{{ batch.capacity }}</span>
+                    </div>
+                    <div>
+                        <span class="text-gray-600">Current Teacher:</span>
+                        {% if batch.teacher %}
+                            <span class="font-medium text-brand">{{ batch.teacher.user.name }}</span>
+                        {% else %}
+                            <span class="text-gray-500 italic">No teacher assigned</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Assignment Form -->
+            <form method="POST">
+                <div class="mb-6">
+                    <label for="teacher_id" class="block text-sm font-medium text-gray-700 mb-2">
+                        Select Teacher
+                    </label>
+                    <select id="teacher_id" name="teacher_id" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand focus:border-transparent">
+                        <option value="">-- Remove current teacher --</option>
+                        {% for teacher in teachers %}
+                            <option value="{{ teacher.id }}" 
+                                    {% if batch.teacher and batch.teacher.id == teacher.id %}selected{% endif %}>
+                                {{ teacher.user.name }} - {{ teacher.user.email }}
+                                {% if teacher.subjects %} 
+                                    ({{ teacher.subjects[:30] }}{% if teacher.subjects|length > 30 %}...{% endif %})
+                                {% endif %}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <p class="text-sm text-gray-600 mt-1">
+                        Select a teacher to assign to this batch, or leave empty to remove current teacher.
+                    </p>
+                </div>
+
+                <!-- Available Teachers Info -->
+                <div class="mb-6">
+                    <h4 class="text-md font-medium text-gray-900 mb-3">Available Teachers</h4>
+                    <div class="space-y-2">
+                        {% for teacher in teachers %}
+                            {% set assigned_batches_count = teacher.assigned_batches | length if teacher.assigned_batches else 0 %}
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-md">
+                                <div>
+                                    <span class="font-medium">{{ teacher.user.name }}</span>
+                                    {% if teacher.subjects %}
+                                        <span class="text-gray-600 text-sm">- {{ teacher.subjects[:40] }}{% if teacher.subjects|length > 40 %}...{% endif %}</span>
+                                    {% endif %}
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-sm text-gray-600">
+                                        Current Load: {{ assigned_batches_count }} batches
+                                    </span>
+                                    {% if batch.teacher and batch.teacher.id == teacher.id %}
+                                        <span class="block text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                                            Currently Assigned
+                                        </span>
+                                    {% elif assigned_batches_count == 0 %}
+                                        <span class="block text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                                            Available
+                                        </span>
+                                    {% elif assigned_batches_count <= 2 %}
+                                        <span class="block text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded-full">
+                                            Light Load
+                                        </span>
+                                    {% else %}
+                                        <span class="block text-xs bg-red-100 text-red-800 px-2 py-1 rounded-full">
+                                            Heavy Load
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex items-center justify-end space-x-4">
+                    <a href="{{ url_for('admin_batches') }}" 
+                       class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors duration-150">
+                        Cancel
+                    </a>
+                    <button type="submit" 
+                            class="px-4 py-2 text-sm font-medium text-white bg-brand rounded-md hover:bg-brand-700 transition-colors duration-150">
+                        <i class="fas fa-save mr-2"></i>
+                        Update Assignment
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

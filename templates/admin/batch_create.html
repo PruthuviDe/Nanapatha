@@ -1,0 +1,390 @@
+{% extends "base.html" %}
+
+{% block title %}Create Batch - NanaPatha{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto space-y-6">
+    <!-- Page Header -->
+    <div class="flex items-center space-x-4">
+        <a href="{{ url_for('admin_batches') }}" 
+           class="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-md transition-colors duration-150">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        
+        <div>
+            <h1 class="text-2xl font-semibold text-gray-900">Create New Batch</h1>
+            <p class="text-sm text-gray-500 mt-1">Set up a new learning group for students</p>
+        </div>
+    </div>
+
+    <!-- Batch Creation Form -->
+    <div class="bg-white rounded-lg shadow p-8">
+        <form method="POST" class="space-y-8">
+            <!-- Basic Information -->
+            <div>
+                <h3 class="text-lg font-medium text-gray-900 mb-4">
+                    <i class="fas fa-info-circle text-brand mr-2"></i>
+                    Basic Information
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Batch Name -->
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Batch Name <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" name="name" required
+                               placeholder="e.g., A/L Physics 2026 - Advanced" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand focus:border-transparent">
+                        <p class="text-xs text-gray-500 mt-1">Choose a descriptive name that includes subject and year</p>
+                    </div>
+                    
+                    <!-- Subject -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Subject <span class="text-red-500">*</span>
+                        </label>
+                        <select name="subject" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand focus:border-transparent">
+                            <option value="">Select Subject</option>
+                            <option value="Mathematics">Mathematics</option>
+                            <option value="Physics">Physics</option>
+                            <option value="Chemistry">Chemistry</option>
+                            <option value="Biology">Biology</option>
+                            <option value="English">English</option>
+                            <option value="Sinhala">Sinhala</option>
+                            <option value="Tamil">Tamil</option>
+                            <option value="History">History</option>
+                            <option value="Geography">Geography</option>
+                            <option value="Economics">Economics</option>
+                            <option value="Business Studies">Business Studies</option>
+                            <option value="Accounting">Accounting</option>
+                            <option value="ICT">ICT</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Grade Level -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Grade Level <span class="text-red-500">*</span>
+                        </label>
+                        <select name="grade_level" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand focus:border-transparent">
+                            <option value="">Select Grade</option>
+                            <option value="6">Grade 6</option>
+                            <option value="7">Grade 7</option>
+                            <option value="8">Grade 8</option>
+                            <option value="9">Grade 9</option>
+                            <option value="10">Grade 10</option>
+                            <option value="11">Grade 11</option>
+                            <option value="12">Grade 12</option>
+                            <option value="13">Grade 13</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Description -->
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Description
+                        </label>
+                        <textarea name="description" rows="3"
+                                  placeholder="Brief description of the batch, topics covered, prerequisites, etc." 
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand focus:border-transparent"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Teacher Assignment -->
+            <div class="border-t pt-8">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">
+                    <i class="fas fa-chalkboard-teacher text-brand mr-2"></i>
+                    Teacher Assignment
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Assign Teacher -->
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Assign Teacher
+                        </label>
+                        <select name="teacher_id"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand focus:border-transparent">
+                            <option value="">No teacher assigned (assign later)</option>
+                            {% for teacher in teachers %}
+                                <option value="{{ teacher.id }}">
+                                    {{ teacher.name }}
+                                    {% if teacher.teacher_profile and teacher.teacher_profile.subject_specialization %}
+                                        - {{ teacher.teacher_profile.subject_specialization }}
+                                    {% endif %}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <p class="text-xs text-gray-500 mt-1">Teachers can be assigned or changed later</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Schedule & Capacity -->
+            <div class="border-t pt-8">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">
+                    <i class="fas fa-calendar-alt text-brand mr-2"></i>
+                    Schedule & Capacity
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Schedule Days -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Class Days
+                        </label>
+                        <input type="text" name="schedule_days"
+                               placeholder="e.g., Monday, Wednesday, Friday" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand focus:border-transparent">
+                    </div>
+                    
+                    <!-- Start Time -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Class Time
+                        </label>
+                        <input type="time" name="start_time"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand focus:border-transparent">
+                    </div>
+                    
+                    <!-- Maximum Students -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Maximum Students
+                        </label>
+                        <input type="number" name="max_students" min="1" max="100" value="25"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand focus:border-transparent">
+                        <p class="text-xs text-gray-500 mt-1">Leave empty for unlimited capacity</p>
+                    </div>
+                    
+                    <!-- Duration -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Duration (Weeks)
+                        </label>
+                        <input type="number" name="duration_weeks" min="1" max="104" value="12"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand focus:border-transparent">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dates & Fees -->
+            <div class="border-t pt-8">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">
+                    <i class="fas fa-calendar-check text-brand mr-2"></i>
+                    Dates & Fees
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Start Date -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Start Date
+                        </label>
+                        <input type="date" name="start_date"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand focus:border-transparent">
+                    </div>
+                    
+                    <!-- End Date -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            End Date
+                        </label>
+                        <input type="date" name="end_date"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand focus:border-transparent">
+                        <p class="text-xs text-gray-500 mt-1">Auto-calculated based on start date and duration</p>
+                    </div>
+                    
+                    <!-- Monthly Fees -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Monthly Fees (LKR)
+                        </label>
+                        <input type="number" name="fees" min="0" step="100" placeholder="5000"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand focus:border-transparent">
+                    </div>
+                    
+                    <!-- Registration Deadline -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Registration Deadline
+                        </label>
+                        <input type="date" name="registration_deadline"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand focus:border-transparent">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Classroom Assignment -->
+            <div class="border-t pt-8">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">
+                    <i class="fas fa-door-open text-brand mr-2"></i>
+                    Classroom Assignment
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Classroom -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Assign Classroom
+                        </label>
+                        <select name="classroom_id"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand focus:border-transparent">
+                            <option value="">No classroom assigned</option>
+                            {% for classroom in classrooms %}
+                                <option value="{{ classroom.id }}">
+                                    {{ classroom.name }} - Capacity: {{ classroom.capacity }}
+                                    {% if classroom.location %}
+                                        ({{ classroom.location }})
+                                    {% endif %}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <p class="text-xs text-gray-500 mt-1">Classroom can be assigned later or changed based on availability</p>
+                    </div>
+                    
+                    <!-- Status -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Initial Status
+                        </label>
+                        <select name="status"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand focus:border-transparent">
+                            <option value="upcoming">Upcoming</option>
+                            <option value="active">Active</option>
+                            <option value="draft">Draft</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional Settings -->
+            <div class="border-t pt-8">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">
+                    <i class="fas fa-cog text-brand mr-2"></i>
+                    Additional Settings
+                </h3>
+                
+                <div class="space-y-4">
+                    <!-- Prerequisites -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Prerequisites
+                        </label>
+                        <textarea name="prerequisites" rows="2"
+                                  placeholder="Any prerequisites or requirements for students to join this batch" 
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand focus:border-transparent"></textarea>
+                    </div>
+                    
+                    <!-- Learning Objectives -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Learning Objectives
+                        </label>
+                        <textarea name="learning_objectives" rows="3"
+                                  placeholder="What students will learn and achieve by completing this batch" 
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand focus:border-transparent"></textarea>
+                    </div>
+                    
+                    <!-- Settings Checkboxes -->
+                    <div class="space-y-3">
+                        <label class="flex items-center">
+                            <input type="checkbox" name="auto_enrollment" 
+                                   class="w-4 h-4 text-brand border-gray-300 rounded focus:ring-brand">
+                            <span class="ml-2 text-sm text-gray-700">
+                                Allow automatic enrollment (students can self-register)
+                            </span>
+                        </label>
+                        
+                        <label class="flex items-center">
+                            <input type="checkbox" name="send_notifications" checked
+                                   class="w-4 h-4 text-brand border-gray-300 rounded focus:ring-brand">
+                            <span class="ml-2 text-sm text-gray-700">
+                                Send notifications to assigned teacher and students
+                            </span>
+                        </label>
+                        
+                        <label class="flex items-center">
+                            <input type="checkbox" name="visible_to_students" checked
+                                   class="w-4 h-4 text-brand border-gray-300 rounded focus:ring-brand">
+                            <span class="ml-2 text-sm text-gray-700">
+                                Make batch visible in student portal
+                            </span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="border-t pt-8 flex items-center justify-between">
+                <a href="{{ url_for('admin_batches') }}" 
+                   class="px-6 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors duration-150">
+                    Cancel
+                </a>
+                
+                <div class="flex items-center space-x-3">
+                    <button type="submit" name="action" value="draft"
+                            class="px-6 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors duration-150">
+                        <i class="fas fa-file-alt mr-2"></i>
+                        Save as Draft
+                    </button>
+                    
+                    <button type="submit" name="action" value="create"
+                            class="px-6 py-2 text-sm font-medium text-white bg-brand rounded-md hover:bg-brand-700 transition-colors duration-150">
+                        <i class="fas fa-save mr-2"></i>
+                        Create Batch
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+// Auto-calculate end date based on start date and duration
+document.addEventListener('DOMContentLoaded', function() {
+    const startDateInput = document.querySelector('input[name="start_date"]');
+    const durationInput = document.querySelector('input[name="duration_weeks"]');
+    const endDateInput = document.querySelector('input[name="end_date"]');
+    
+    function calculateEndDate() {
+        if (startDateInput.value && durationInput.value) {
+            const startDate = new Date(startDateInput.value);
+            const duration = parseInt(durationInput.value);
+            const endDate = new Date(startDate.getTime() + (duration * 7 * 24 * 60 * 60 * 1000));
+            
+            endDateInput.value = endDate.toISOString().split('T')[0];
+        }
+    }
+    
+    startDateInput.addEventListener('change', calculateEndDate);
+    durationInput.addEventListener('input', calculateEndDate);
+    
+    // Auto-generate batch name based on subject and grade
+    const subjectSelect = document.querySelector('select[name="subject"]');
+    const gradeSelect = document.querySelector('select[name="grade_level"]');
+    const nameInput = document.querySelector('input[name="name"]');
+    
+    function generateBatchName() {
+        if (subjectSelect.value && gradeSelect.value && nameInput.value === '') {
+            const currentYear = new Date().getFullYear();
+            const grade = gradeSelect.value;
+            const subject = subjectSelect.value;
+            
+            if (grade >= 12) {
+                nameInput.value = `A/L ${subject} ${currentYear + 1}`;
+            } else {
+                nameInput.value = `Grade ${grade} ${subject} ${currentYear}`;
+            }
+        }
+    }
+    
+    subjectSelect.addEventListener('change', generateBatchName);
+    gradeSelect.addEventListener('change', generateBatchName);
+});
+</script>
+{% endblock %}

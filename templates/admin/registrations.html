@@ -1,0 +1,247 @@
+{% extends "base.html" %}
+
+{% block title %}Registration Requests - NanaPatha{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Page Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-semibold text-gray-900">Registration Requests</h1>
+            <p class="text-sm text-gray-500 mt-1">Review and manage student registration requests</p>
+        </div>
+        
+        <div class="flex items-center space-x-3">
+            <button class="bg-brand text-white px-4 py-2 rounded-md hover:bg-brand-700 transition-colors duration-150">
+                <i class="fas fa-download mr-2"></i>
+                Export CSV
+            </button>
+        </div>
+    </div>
+
+    <!-- Filters and Search -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <form method="GET" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <!-- Search -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Search</label>
+                    <input type="text" name="search" value="{{ search_query }}" 
+                           placeholder="Name or email..." 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand focus:border-transparent">
+                </div>
+                
+                <!-- Status Filter -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                    <select name="status" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand focus:border-transparent">
+                        <option value="all" {% if status_filter == 'all' %}selected{% endif %}>All Status</option>
+                        <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+                        <option value="accepted" {% if status_filter == 'accepted' %}selected{% endif %}>Accepted</option>
+                        <option value="rejected" {% if status_filter == 'rejected' %}selected{% endif %}>Rejected</option>
+                    </select>
+                </div>
+                
+                <!-- Registration Type Filter -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Type</label>
+                    <select name="filter" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand focus:border-transparent">
+                        <option value="all" {% if type_filter == 'all' %}selected{% endif %}>All Types</option>
+                        <option value="existing" {% if type_filter == 'existing' %}selected{% endif %}>🆔 Existing Students</option>
+                        <option value="new" {% if type_filter == 'new' %}selected{% endif %}>🆕 New Students</option>
+                    </select>
+                </div>
+                
+                <!-- Payment Status Filter -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Payment</label>
+                    <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand focus:border-transparent">
+                        <option value="all">All Payments</option>
+                        <option value="paid">Paid</option>
+                        <option value="pending">Pending</option>
+                        <option value="failed">Failed</option>
+                    </select>
+                </div>
+                
+                <!-- Actions -->
+                <div class="flex items-end space-x-2">
+                    <button type="submit" 
+                            class="bg-brand text-white px-4 py-2 rounded-md hover:bg-brand-700 transition-colors duration-150">
+                        <i class="fas fa-search mr-2"></i>
+                        Filter
+                    </button>
+                    <a href="{{ url_for('admin_registrations') }}" 
+                       class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 transition-colors duration-150">
+                        Reset
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Registrations Table -->
+    {% if registrations %}
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <!-- Table Header -->
+        <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-medium text-gray-900">
+                    {{ registrations|length }} Registration{{ 's' if registrations|length != 1 else '' }}
+                </h3>
+                
+                <!-- Bulk Actions -->
+                <div class="flex items-center space-x-2">
+                    <button class="text-sm text-gray-600 hover:text-gray-800">
+                        <i class="fas fa-check mr-1"></i>
+                        Bulk Accept
+                    </button>
+                    <button class="text-sm text-gray-600 hover:text-gray-800">
+                        <i class="fas fa-times mr-1"></i>
+                        Bulk Reject
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Table Content -->
+        <div class="divide-y divide-gray-200">
+            {% for registration in registrations %}
+            <div class="px-6 py-4 hover:bg-gray-50 transition-colors duration-150">
+                <div class="flex items-center justify-between">
+                    <!-- Left: Student Info -->
+                    <div class="flex items-center space-x-4">
+                        <!-- Checkbox -->
+                        <input type="checkbox" 
+                               class="w-4 h-4 text-brand border-gray-300 rounded focus:ring-brand">
+                        
+                        <!-- Avatar -->
+                        <div class="w-12 h-12 bg-gradient-to-r from-brand to-secondary rounded-full flex items-center justify-center">
+                            <span class="text-white font-medium">
+                                {{ registration.name[0].upper() }}
+                            </span>
+                        </div>
+                        
+                        <!-- Details -->
+                        <div>
+                            <div class="flex items-center space-x-2 mb-1">
+                                <h4 class="text-sm font-medium text-gray-900">{{ registration.name }}</h4>
+                                {% if registration.registration_type == 'existing' %}
+                                    <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-orange-100 text-orange-800">
+                                        <i class="fas fa-id-card mr-1"></i>
+                                        Existing Student
+                                    </span>
+                                {% else %}
+                                    <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                                        <i class="fas fa-user-plus mr-1"></i>
+                                        New Student
+                                    </span>
+                                {% endif %}
+                            </div>
+                            <p class="text-sm text-gray-500">{{ registration.email }}</p>
+                            {% if registration.registration_type == 'existing' and registration.student_id_number %}
+                                <p class="text-xs text-blue-600 font-medium">
+                                    <i class="fas fa-id-badge mr-1"></i>
+                                    Student ID: {{ registration.student_id_number }}
+                                </p>
+                            {% endif %}
+                            {% if registration.selected_batch %}
+                                <p class="text-xs text-gray-400">
+                                    <i class="fas fa-layer-group mr-1"></i>
+                                    {{ registration.selected_batch.name }}
+                                </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Center: Status and Payment -->
+                    <div class="flex items-center space-x-6">
+                        <!-- Payment Status -->
+                        <div class="text-center">
+                            <span class="inline-flex px-3 py-1 text-xs font-medium rounded-full {{ registration.payment_badge_class }}">
+                                <i class="fas fa-credit-card mr-1"></i>
+                                {{ registration.payment_status.title() }}
+                            </span>
+                        </div>
+                        
+                        <!-- Registration Status -->
+                        <div class="text-center">
+                            <span class="inline-flex px-3 py-1 text-xs font-medium rounded-full {{ registration.status_badge_class }}">
+                                {{ registration.status.title() }}
+                            </span>
+                        </div>
+                        
+                        <!-- Submitted Date -->
+                        <div class="text-center">
+                            <p class="text-xs text-gray-500">Submitted</p>
+                            <p class="text-sm font-medium text-gray-900">
+                                {{ registration.formatted_submitted_date }}
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- Right: Actions -->
+                    <div class="flex items-center space-x-3">
+                        {% if registration.claimed_by %}
+                            <span class="inline-flex items-center px-2 py-1 text-xs font-medium bg-amber-100 text-amber-800 rounded-full">
+                                <i class="fas fa-user-lock mr-1"></i>
+                                Claimed
+                            </span>
+                        {% endif %}
+                        
+                        <a href="{{ url_for('admin_registration_detail', reg_id=registration.id) }}" 
+                           class="inline-flex items-center px-3 py-2 text-sm font-medium text-brand bg-brand/10 rounded-md hover:bg-brand/20 transition-colors duration-150">
+                            <i class="fas fa-eye mr-2"></i>
+                            Review
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <!-- Empty State -->
+    <div class="bg-white rounded-lg shadow p-12 text-center">
+        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <i class="fas fa-user-plus text-gray-400 text-2xl"></i>
+        </div>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">No Registration Requests</h3>
+        <p class="text-gray-500 mb-6">
+            {% if status_filter != 'all' or search_query %}
+                No registrations match your current filters.
+            {% else %}
+                When students submit registration requests, they will appear here.
+            {% endif %}
+        </p>
+        
+        {% if status_filter != 'all' or search_query %}
+            <a href="{{ url_for('admin_registrations') }}" 
+               class="inline-flex items-center px-4 py-2 text-sm font-medium text-brand bg-brand/10 rounded-md hover:bg-brand/20">
+                <i class="fas fa-undo mr-2"></i>
+                Clear Filters
+            </a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Test Data Links (for prototype) -->
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <h4 class="text-sm font-medium text-blue-900 mb-2">
+            <i class="fas fa-flask mr-2"></i>
+            Prototype Testing
+        </h4>
+        <div class="space-x-4">
+            <a href="{{ url_for('student_register_new') }}" 
+               class="text-sm text-blue-700 hover:text-blue-900">
+                Test New Student Registration →
+            </a>
+            <a href="{{ url_for('student_register_existing') }}" 
+               class="text-sm text-blue-700 hover:text-blue-900">
+                Test Existing Student Registration →
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

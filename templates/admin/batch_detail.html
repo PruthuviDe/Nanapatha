@@ -1,0 +1,280 @@
+{% extends "base.html" %}
+
+{% block title %}Batch Details - {{ batch.name }}{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="flex items-center justify-between mb-8">
+    <div>
+        <h1 class="text-3xl font-bold text-gray-900">Batch Details</h1>
+        <p class="mt-2 text-gray-600">View and manage batch information</p>
+    </div>
+    <div class="flex space-x-3">
+        <a href="{{ url_for('admin_batches') }}" 
+           class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+            <i class="fas fa-arrow-left mr-2"></i>
+            Back to Batches
+        </a>
+        <a href="{{ url_for('admin_batch_edit', batch_id=batch.id) }}" 
+           class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-brand hover:bg-brand-700 rounded-md">
+            <i class="fas fa-edit mr-2"></i>
+            Edit Batch
+        </a>
+    </div>
+</div>
+
+<!-- Batch Profile Card -->
+<div class="bg-white rounded-lg shadow overflow-hidden">
+    <!-- Header Section -->
+    <div class="bg-gradient-to-r from-purple-500 to-purple-600 px-6 py-8">
+        <div class="flex items-center space-x-6">
+            <div class="w-24 h-24 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                <i class="fas fa-graduation-cap text-white text-3xl"></i>
+            </div>
+            <div class="text-white">
+                <h2 class="text-2xl font-bold">{{ batch.name }}</h2>
+                <p class="text-purple-100">{{ batch.subject }} - Grade {{ batch.grade }}</p>
+                <div class="flex items-center mt-2">
+                    <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-white bg-opacity-20 text-white">
+                        Active
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Section -->
+    <div class="p-6">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Basic Information -->
+            <div class="space-y-6">
+                <h3 class="text-lg font-semibold text-gray-900 border-b pb-2">Basic Information</h3>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500">Batch Name</label>
+                        <p class="mt-1 text-gray-900">{{ batch.name }}</p>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500">Subject</label>
+                        <p class="mt-1 text-gray-900">{{ batch.subject or 'Not specified' }}</p>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500">Grade Level</label>
+                        <p class="mt-1 text-gray-900">{{ batch.grade or 'Not specified' }}</p>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500">Class Type</label>
+                        <p class="mt-1 text-gray-900">{{ batch.class_type.title() if batch.class_type else 'Not specified' }}</p>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500">Teacher</label>
+                        <p class="mt-1 text-gray-900">{{ batch.teacher_name or 'Not assigned' }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Enrollment Information -->
+            <div class="space-y-6">
+                <h3 class="text-lg font-semibold text-gray-900 border-b pb-2">Enrollment Information</h3>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500">Capacity</label>
+                        <p class="mt-1 text-gray-900">{{ batch.capacity or 30 }} students</p>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500">Current Enrollment</label>
+                        <p class="mt-1 text-gray-900">{{ batch.students | length }} students</p>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500">Available Spots</label>
+                        {% set available = (batch.capacity or 30) - (batch.students | length) %}
+                        <p class="mt-1 text-gray-900">{{ available }} spots</p>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500">Enrollment Progress</label>
+                        {% set progress = ((batch.students | length) / (batch.capacity or 30) * 100) | round(1) %}
+                        <div class="mt-2">
+                            <div class="flex items-center justify-between text-sm text-gray-600 mb-1">
+                                <span>{{ progress }}% Full</span>
+                                <span>{{ batch.students | length }}/{{ batch.capacity or 30 }}</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-brand h-2 rounded-full" style="width: {{ progress }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notes Section -->
+        {% if batch.notes %}
+        <div class="mt-8 pt-8 border-t">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Notes</h3>
+            <div class="bg-gray-50 rounded-lg p-4">
+                <p class="text-gray-700">{{ batch.notes }}</p>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Enrolled Students -->
+        <div class="mt-8 pt-8 border-t">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">Enrolled Students</h3>
+                <button class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-brand bg-brand-50 rounded-md hover:bg-brand-100">
+                    <i class="fas fa-user-plus mr-1"></i>
+                    Add Student
+                </button>
+            </div>
+            
+            {% if batch.students %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {% for student in batch.students %}
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-brand-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-user text-brand text-sm"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-gray-900 truncate">{{ student.user.name }}</p>
+                            <p class="text-xs text-gray-500">{{ student.student_id_number or 'No ID' }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-8 bg-gray-50 rounded-lg">
+                <i class="fas fa-users text-gray-300 text-3xl mb-4"></i>
+                <p class="text-gray-500">No students enrolled yet</p>
+                <button class="mt-2 inline-flex items-center px-4 py-2 text-sm font-medium text-brand bg-white border border-brand rounded-md hover:bg-brand-50">
+                    <i class="fas fa-user-plus mr-2"></i>
+                    Enroll First Student
+                </button>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Batch Statistics -->
+        <div class="mt-8 pt-8 border-t">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Statistics</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-6">
+                <div class="bg-blue-50 rounded-lg p-4 text-center">
+                    <div class="text-2xl font-bold text-blue-600">{{ batch.students | length }}</div>
+                    <div class="text-sm text-blue-600">Enrolled Students</div>
+                </div>
+                <div class="bg-emerald-50 rounded-lg p-4 text-center">
+                    <div class="text-2xl font-bold text-emerald-600">0</div>
+                    <div class="text-sm text-emerald-600">Classes Completed</div>
+                </div>
+                <div class="bg-purple-50 rounded-lg p-4 text-center">
+                    <div class="text-2xl font-bold text-purple-600">0</div>
+                    <div class="text-sm text-purple-600">Average Attendance</div>
+                </div>
+                <div class="bg-amber-50 rounded-lg p-4 text-center">
+                    <div class="text-2xl font-bold text-amber-600">{{ progress | round }}%</div>
+                    <div class="text-sm text-amber-600">Capacity Used</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="mt-8 pt-8 border-t">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
+            <div class="bg-gray-50 rounded-lg p-4">
+                <div class="flex items-center text-sm text-gray-600">
+                    <i class="fas fa-calendar-alt mr-2"></i>
+                    Batch created on {{ batch.created_at.strftime('%B %d, %Y at %I:%M %p') }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="mt-8 pt-6 border-t flex flex-wrap gap-3">
+            <a href="{{ url_for('admin_batch_edit', batch_id=batch.id) }}" 
+               class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-brand hover:bg-brand-700 rounded-md">
+                <i class="fas fa-edit mr-2"></i>
+                Edit Batch
+            </a>
+            
+            <button class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md">
+                <i class="fas fa-user-plus mr-2"></i>
+                Enroll Students
+            </button>
+            
+            <button class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md">
+                <i class="fas fa-calendar-plus mr-2"></i>
+                Schedule Classes
+            </button>
+            
+            <button class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md">
+                <i class="fas fa-chart-line mr-2"></i>
+                View Reports
+            </button>
+            
+            <button onclick="confirmArchive()" 
+                    class="inline-flex items-center px-4 py-2 text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-md">
+                <i class="fas fa-archive mr-2"></i>
+                Archive Batch
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Archive Confirmation Modal -->
+<div id="archiveModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3 text-center">
+            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+                <i class="fas fa-archive text-red-600 text-xl"></i>
+            </div>
+            <h3 class="text-lg font-medium text-gray-900 mt-4">Archive Batch</h3>
+            <div class="mt-2 px-7 py-3">
+                <p class="text-sm text-gray-500">
+                    Are you sure you want to archive <strong>{{ batch.name }}</strong>? 
+                    This will mark the batch as archived and affect {{ batch.students | length }} enrolled students.
+                </p>
+            </div>
+            <div class="items-center px-4 py-3">
+                <form method="POST" action="{{ url_for('admin_batch_archive', batch_id=batch.id) }}" class="inline">
+                    <button type="submit" 
+                            class="px-4 py-2 bg-red-600 text-white text-base font-medium rounded-md w-20 mr-2 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">
+                        Archive
+                    </button>
+                </form>
+                <button onclick="closeModal()" 
+                        class="px-4 py-2 bg-gray-300 text-gray-900 text-base font-medium rounded-md w-20 hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmArchive() {
+    document.getElementById('archiveModal').classList.remove('hidden');
+}
+
+function closeModal() {
+    document.getElementById('archiveModal').classList.add('hidden');
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const modal = document.getElementById('archiveModal');
+    if (event.target == modal) {
+        closeModal();
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,361 @@
+{% extends "base.html" %}
+
+{% block title %}Registration Review - {{ registration.name }} - NanaPatha{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Page Header with Breadcrumb -->
+    <div class="flex items-center justify-between">
+        <div>
+            <nav class="flex items-center space-x-2 text-sm text-gray-500 mb-2">
+                <a href="{{ url_for('admin_dashboard') }}" class="hover:text-gray-700">Dashboard</a>
+                <i class="fas fa-chevron-right text-xs"></i>
+                <a href="{{ url_for('admin_registrations') }}" class="hover:text-gray-700">Registrations</a>
+                <i class="fas fa-chevron-right text-xs"></i>
+                <span class="text-gray-900">{{ registration.name }}</span>
+            </nav>
+            <h1 class="text-2xl font-semibold text-gray-900">Registration Review</h1>
+        </div>
+        
+        <div class="flex items-center space-x-3">
+            {% if registration.status == 'pending' %}
+                {% if not registration.claimed_by %}
+                    <button onclick="claimRegistration({{ registration.id }})" 
+                            class="bg-amber-100 text-amber-800 px-4 py-2 rounded-md hover:bg-amber-200 transition-colors duration-150">
+                        <i class="fas fa-hand-paper mr-2"></i>
+                        Claim for Review
+                    </button>
+                {% else %}
+                    <span class="inline-flex items-center px-3 py-2 text-sm font-medium bg-amber-100 text-amber-800 rounded-md">
+                        <i class="fas fa-user-lock mr-2"></i>
+                        Claimed by {{ registration.claimed_by }}
+                    </span>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Main Content (Left Column) -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Student Information -->
+            <div class="bg-white rounded-lg shadow">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-medium text-gray-900">Student Information</h3>
+                        <div class="flex items-center space-x-2">
+                            <span class="inline-flex px-3 py-1 text-sm font-medium rounded-full {{ registration.status_badge_class }}">
+                                {{ registration.status.title() }}
+                            </span>
+                            {% if registration.registration_type == 'existing' %}
+                                <span class="inline-flex px-3 py-1 text-sm font-medium rounded-full bg-orange-100 text-orange-800">
+                                    <i class="fas fa-id-card mr-1"></i>
+                                    Existing Student
+                                </span>
+                            {% else %}
+                                <span class="inline-flex px-3 py-1 text-sm font-medium rounded-full bg-green-100 text-green-800">
+                                    <i class="fas fa-user-plus mr-1"></i>
+                                    New Student
+                                </span>
+                            {% endif %}
+                                {{ registration.registration_type.title() }} Student
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="px-6 py-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Basic Info -->
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-900 mb-3">Basic Details</h4>
+                            <dl class="space-y-3">
+                                <div>
+                                    <dt class="text-sm text-gray-500">Full Name</dt>
+                                    <dd class="text-sm font-medium text-gray-900">{{ registration.name }}</dd>
+                                </div>
+                                <div>
+                                    <dt class="text-sm text-gray-500">Email</dt>
+                                    <dd class="text-sm font-medium text-gray-900">{{ registration.email }}</dd>
+                                </div>
+                                {% if registration.mobile %}
+                                <div>
+                                    <dt class="text-sm text-gray-500">Mobile</dt>
+                                    <dd class="text-sm font-medium text-gray-900">{{ registration.mobile }}</dd>
+                                </div>
+                                {% endif %}
+                                {% if registration.dob %}
+                                <div>
+                                    <dt class="text-sm text-gray-500">Date of Birth</dt>
+                                    <dd class="text-sm font-medium text-gray-900">{{ registration.dob.strftime('%Y-%m-%d') }}</dd>
+                                </div>
+                                {% endif %}
+                            </dl>
+                        </div>
+                        
+                        <!-- Academic Info -->
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-900 mb-3">Academic Details</h4>
+                            <dl class="space-y-3">
+                                {% if registration.grade %}
+                                <div>
+                                    <dt class="text-sm text-gray-500">Grade</dt>
+                                    <dd class="text-sm font-medium text-gray-900">{{ registration.grade }}</dd>
+                                </div>
+                                {% endif %}
+                                {% if registration.class_type %}
+                                <div>
+                                    <dt class="text-sm text-gray-500">Preferred Class Type</dt>
+                                    <dd>
+                                        <span class="inline-flex px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">
+                                            {{ registration.class_type.title() }}
+                                        </span>
+                                    </dd>
+                                </div>
+                                {% endif %}
+                                {% if registration.selected_batch %}
+                                <div>
+                                    <dt class="text-sm text-gray-500">Selected Class</dt>
+                                    <dd class="text-sm font-medium text-gray-900">{{ registration.selected_batch.name }}</dd>
+                                    <dd class="text-xs text-gray-500">{{ registration.selected_batch.teacher_name }} • {{ registration.selected_batch.subject }}</dd>
+                                </div>
+                                {% endif %}
+                                {% if registration.student_id_number %}
+                                <div>
+                                    <dt class="text-sm text-gray-500">Student ID Number</dt>
+                                    <dd class="text-sm font-medium text-gray-900">{{ registration.student_id_number }}</dd>
+                                </div>
+                                {% endif %}
+                            </dl>
+                        </div>
+                    </div>
+                    
+                    {% if registration.address %}
+                    <div class="mt-6">
+                        <h4 class="text-sm font-medium text-gray-900 mb-3">Address</h4>
+                        <p class="text-sm text-gray-700">{{ registration.address }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Documents Section -->
+            <div class="bg-white rounded-lg shadow">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Documents</h3>
+                </div>
+                
+                <div class="px-6 py-6">
+                    <div class="grid grid-cols-2 gap-6">
+                        <!-- Passport Photo -->
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-900 mb-3">Passport Photo</h4>
+                            <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                                {% if registration.passport_photo_path %}
+                                    <img src="{{ registration.passport_photo_path }}" alt="Passport Photo" class="mx-auto w-24 h-32 object-cover rounded">
+                                {% else %}
+                                    <div class="w-24 h-32 bg-gray-100 mx-auto rounded flex items-center justify-center">
+                                        <i class="fas fa-user text-gray-400 text-2xl"></i>
+                                    </div>
+                                    <p class="text-xs text-gray-500 mt-2">Photo placeholder</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Student ID Card (for existing students) -->
+                        {% if registration.registration_type == 'existing' %}
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-900 mb-3">Student ID Card</h4>
+                            <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                                {% if registration.student_id_card_path %}
+                                    <img src="{{ registration.student_id_card_path }}" alt="Student ID" class="mx-auto w-32 h-20 object-cover rounded">
+                                {% else %}
+                                    <div class="w-32 h-20 bg-gray-100 mx-auto rounded flex items-center justify-center">
+                                        <i class="fas fa-id-card text-gray-400 text-xl"></i>
+                                    </div>
+                                    <p class="text-xs text-gray-500 mt-2">ID card placeholder</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Information -->
+            <div class="bg-white rounded-lg shadow">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-medium text-gray-900">Payment Information</h3>
+                        <span class="inline-flex px-3 py-1 text-sm font-medium rounded-full {{ registration.payment_badge_class }}">
+                            {{ registration.payment_status.title() }}
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="px-6 py-6">
+                    <div class="grid grid-cols-2 gap-6">
+                        <div>
+                            <dt class="text-sm text-gray-500">Amount</dt>
+                            <dd class="text-lg font-semibold text-gray-900">
+                                {% if registration.payment_amount %}
+                                    LKR {{ registration.payment_amount }}
+                                {% else %}
+                                    LKR 15,000 <span class="text-sm text-gray-500">(estimated)</span>
+                                {% endif %}
+                            </dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm text-gray-500">Payment Method</dt>
+                            <dd class="text-sm text-gray-900">
+                                {{ registration.payment_method or 'Online Payment' }}
+                            </dd>
+                        </div>
+                    </div>
+                    
+                    {% if registration.payment_status == 'pending' %}
+                    <div class="mt-4">
+                        <form action="{{ url_for('mark_paid', reg_id=registration.id) }}" method="POST" class="inline">
+                            <button type="submit" 
+                                    class="bg-emerald-600 text-white px-4 py-2 rounded-md hover:bg-emerald-700 transition-colors duration-150">
+                                <i class="fas fa-check mr-2"></i>
+                                Mark as Paid
+                            </button>
+                        </form>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Admin Notes and Timeline -->
+            {% if registration.admin_note %}
+            <div class="bg-white rounded-lg shadow">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Admin Notes</h3>
+                </div>
+                
+                <div class="px-6 py-6">
+                    <p class="text-sm text-gray-700">{{ registration.admin_note }}</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Action Sidebar (Right Column) -->
+        <div class="space-y-6">
+            <!-- Actions Card -->
+            {% if registration.status == 'pending' %}
+            <div class="bg-white rounded-lg shadow">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Actions</h3>
+                </div>
+                
+                <div class="px-6 py-6 space-y-4">
+                    <!-- Accept Button -->
+                    <form action="{{ url_for('accept_registration', reg_id=registration.id) }}" method="POST">
+                        <button type="submit" 
+                                class="w-full bg-brand text-white px-4 py-3 rounded-md hover:bg-brand-700 transition-colors duration-150 font-medium">
+                            <i class="fas fa-check mr-2"></i>
+                            Accept Registration
+                        </button>
+                    </form>
+                    
+                    <!-- Reject Button -->
+                    <button onclick="showRejectModal({{ registration.id }})" 
+                            class="w-full border border-rose-600 text-rose-600 px-4 py-3 rounded-md hover:bg-rose-50 transition-colors duration-150 font-medium">
+                        <i class="fas fa-times mr-2"></i>
+                        Reject Registration
+                    </button>
+                    
+                    <hr class="my-4">
+                    
+                    <!-- Secondary Actions -->
+                    <button class="w-full text-left text-sm text-gray-600 hover:text-gray-800 py-2">
+                        <i class="fas fa-envelope mr-2"></i>
+                        Resend Temp Password
+                    </button>
+                    
+                    <button class="w-full text-left text-sm text-gray-600 hover:text-gray-800 py-2">
+                        <i class="fas fa-sticky-note mr-2"></i>
+                        Add Admin Note
+                    </button>
+                    
+                    <button class="w-full text-left text-sm text-gray-600 hover:text-gray-800 py-2">
+                        <i class="fas fa-download mr-2"></i>
+                        Download Documents
+                    </button>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Registration Details -->
+            <div class="bg-white rounded-lg shadow">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Registration Details</h3>
+                </div>
+                
+                <div class="px-6 py-6 space-y-4">
+                    <div>
+                        <dt class="text-sm text-gray-500">Submitted</dt>
+                        <dd class="text-sm font-medium text-gray-900">{{ registration.formatted_submitted_date }}</dd>
+                    </div>
+                    
+                    <div>
+                        <dt class="text-sm text-gray-500">Registration Type</dt>
+                        <dd class="text-sm font-medium text-gray-900">{{ registration.registration_type.title() }} Student</dd>
+                    </div>
+                    
+                    {% if registration.claimed_by %}
+                    <div>
+                        <dt class="text-sm text-gray-500">Claimed By</dt>
+                        <dd class="text-sm font-medium text-gray-900">{{ registration.claimed_by }}</dd>
+                        {% if registration.claimed_at %}
+                        <dd class="text-xs text-gray-500">{{ registration.claimed_at.strftime('%Y-%m-%d %H:%M') }}</dd>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    
+                    {% if registration.processed_at %}
+                    <div>
+                        <dt class="text-sm text-gray-500">Processed</dt>
+                        <dd class="text-sm font-medium text-gray-900">{{ registration.processed_at.strftime('%Y-%m-%d %H:%M') }}</dd>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Batch Information (if selected) -->
+            {% if selected_batch %}
+            <div class="bg-white rounded-lg shadow">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Selected Batch</h3>
+                </div>
+                
+                <div class="px-6 py-6">
+                    <div class="space-y-3">
+                        <div>
+                            <dt class="text-sm text-gray-500">Batch Name</dt>
+                            <dd class="text-sm font-medium text-gray-900">{{ selected_batch.name }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm text-gray-500">Subject</dt>
+                            <dd class="text-sm font-medium text-gray-900">{{ selected_batch.subject }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm text-gray-500">Teacher</dt>
+                            <dd class="text-sm font-medium text-gray-900">{{ selected_batch.teacher_name }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm text-gray-500">Capacity</dt>
+                            <dd class="text-sm font-medium text-gray-900">
+                                {{ selected_batch.students|length }}/{{ selected_batch.capacity }} students
+                            </dd>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

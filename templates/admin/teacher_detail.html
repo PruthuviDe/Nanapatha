@@ -1,0 +1,236 @@
+{% extends "base.html" %}
+
+{% block title %}Teacher Details - {{ teacher.name }}{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="flex items-center justify-between mb-8">
+    <div>
+        <h1 class="text-3xl font-bold text-gray-900">Teacher Details</h1>
+        <p class="mt-2 text-gray-600">View and manage teacher information</p>
+    </div>
+    <div class="flex space-x-3">
+        <a href="{{ url_for('admin_teachers') }}" 
+           class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+            <i class="fas fa-arrow-left mr-2"></i>
+            Back to Teachers
+        </a>
+        <a href="{{ url_for('admin_teacher_edit', teacher_id=teacher.id) }}" 
+           class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-brand hover:bg-brand-700 rounded-md">
+            <i class="fas fa-edit mr-2"></i>
+            Edit Teacher
+        </a>
+    </div>
+</div>
+
+<!-- Teacher Profile Card -->
+<div class="bg-white rounded-lg shadow overflow-hidden">
+    <!-- Header Section -->
+    <div class="bg-gradient-to-r from-emerald-500 to-emerald-600 px-6 py-8">
+        <div class="flex items-center space-x-6">
+            <div class="w-24 h-24 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                <i class="fas fa-chalkboard-teacher text-white text-3xl"></i>
+            </div>
+            <div class="text-white">
+                <h2 class="text-2xl font-bold">{{ teacher.name }}</h2>
+                <p class="text-emerald-100">{{ teacher.email }}</p>
+                <div class="flex items-center mt-2">
+                    <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-white bg-opacity-20 text-white">
+                        {{ teacher.status.title() }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Section -->
+    <div class="p-6">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Personal Information -->
+            <div class="space-y-6">
+                <h3 class="text-lg font-semibold text-gray-900 border-b pb-2">Personal Information</h3>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500">Full Name</label>
+                        <p class="mt-1 text-gray-900">{{ teacher.name }}</p>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500">Email Address</label>
+                        <p class="mt-1 text-gray-900">{{ teacher.email }}</p>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500">Phone Number</label>
+                        <p class="mt-1 text-gray-900">{{ teacher.phone or 'Not provided' }}</p>
+                    </div>
+                    
+                    {% if teacher.teacher_profile and teacher.teacher_profile.contact_number %}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500">Contact Number</label>
+                        <p class="mt-1 text-gray-900">{{ teacher.teacher_profile.contact_number }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Professional Information -->
+            <div class="space-y-6">
+                <h3 class="text-lg font-semibold text-gray-900 border-b pb-2">Professional Information</h3>
+                
+                <div class="space-y-4">
+                    {% if teacher.teacher_profile %}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500">Subject Specializations</label>
+                        <div class="mt-2 flex flex-wrap gap-2">
+                            {% if teacher.teacher_profile.subjects %}
+                                {% for subject in teacher.teacher_profile.subjects %}
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-brand-50 text-brand-700">
+                                    {{ subject }}
+                                </span>
+                                {% endfor %}
+                            {% else %}
+                            <p class="text-gray-500">No subjects assigned</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    {% if teacher.teacher_profile.bio %}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500">Biography</label>
+                        <p class="mt-1 text-gray-900">{{ teacher.teacher_profile.bio }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500">Status</label>
+                        <p class="mt-1">
+                            {% if teacher.teacher_profile.active_flag %}
+                            <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-emerald-100 text-emerald-800">
+                                Active
+                            </span>
+                            {% else %}
+                            <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">
+                                Inactive
+                            </span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    {% else %}
+                    <p class="text-gray-500 italic">No professional profile created yet</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Teaching Statistics -->
+        <div class="mt-8 pt-8 border-t">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Teaching Statistics</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                <div class="bg-blue-50 rounded-lg p-4 text-center">
+                    <div class="text-2xl font-bold text-blue-600">0</div>
+                    <div class="text-sm text-blue-600">Active Batches</div>
+                </div>
+                <div class="bg-emerald-50 rounded-lg p-4 text-center">
+                    <div class="text-2xl font-bold text-emerald-600">0</div>
+                    <div class="text-sm text-emerald-600">Total Students</div>
+                </div>
+                <div class="bg-purple-50 rounded-lg p-4 text-center">
+                    <div class="text-2xl font-bold text-purple-600">0</div>
+                    <div class="text-sm text-purple-600">Classes This Week</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="mt-8 pt-8 border-t">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
+            <div class="bg-gray-50 rounded-lg p-4">
+                <div class="flex items-center text-sm text-gray-600">
+                    <i class="fas fa-calendar-alt mr-2"></i>
+                    Teacher registered on {{ teacher.created_at.strftime('%B %d, %Y at %I:%M %p') }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="mt-8 pt-6 border-t flex flex-wrap gap-3">
+            <a href="{{ url_for('admin_teacher_edit', teacher_id=teacher.id) }}" 
+               class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-brand hover:bg-brand-700 rounded-md">
+                <i class="fas fa-edit mr-2"></i>
+                Edit Profile
+            </a>
+            
+            <button class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md">
+                <i class="fas fa-users mr-2"></i>
+                Assign Batches
+            </button>
+            
+            <button class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md">
+                <i class="fas fa-calendar-plus mr-2"></i>
+                Schedule Classes
+            </button>
+            
+            <button class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md">
+                <i class="fas fa-chart-line mr-2"></i>
+                View Performance
+            </button>
+            
+            <button onclick="confirmDeactivate()" 
+                    class="inline-flex items-center px-4 py-2 text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-md">
+                <i class="fas fa-user-times mr-2"></i>
+                Deactivate
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Deactivate Confirmation Modal -->
+<div id="deactivateModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3 text-center">
+            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+                <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+            </div>
+            <h3 class="text-lg font-medium text-gray-900 mt-4">Deactivate Teacher</h3>
+            <div class="mt-2 px-7 py-3">
+                <p class="text-sm text-gray-500">
+                    Are you sure you want to deactivate <strong>{{ teacher.name }}</strong>? 
+                    This will prevent them from accessing their account and teaching classes.
+                </p>
+            </div>
+            <div class="items-center px-4 py-3">
+                <form method="POST" action="{{ url_for('admin_teacher_deactivate', teacher_id=teacher.id) }}" class="inline">
+                    <button type="submit" 
+                            class="px-4 py-2 bg-red-600 text-white text-base font-medium rounded-md w-24 mr-2 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">
+                        Deactivate
+                    </button>
+                </form>
+                <button onclick="closeModal()" 
+                        class="px-4 py-2 bg-gray-300 text-gray-900 text-base font-medium rounded-md w-24 hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmDeactivate() {
+    document.getElementById('deactivateModal').classList.remove('hidden');
+}
+
+function closeModal() {
+    document.getElementById('deactivateModal').classList.add('hidden');
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const modal = document.getElementById('deactivateModal');
+    if (event.target == modal) {
+        closeModal();
+    }
+}
+</script>
+{% endblock %}
